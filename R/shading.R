@@ -14,6 +14,7 @@ sun_move <- function(start, end, timezone, lat, lon, frequency) {
   # The output of "sun_move": Cartesian coordinates of the sun, azimuth and zenith of the sun, the Julian day, the date and hour of the day and if the sun is set or not.
   # The output is maintained in hourly time steps.
 
+  # prepare data
   position <- matrix(0, ncol = 8, nrow = 500)
   position_df <- matrix(0, ncol = 8, nrow = 500)
   timeframe <- seq(start, end, length.out = frequency)

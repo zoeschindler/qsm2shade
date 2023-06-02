@@ -115,6 +115,9 @@ plot_single_item <- function(item_poly, col = "pink2") {
 #' @export
 plot_items <- function(item_pts, col, add = TRUE) {
 
+  # remove items with NAs
+  item_pts <- na.omit(item_pts)
+
   # open new window
   if (!add) {
     rgl::open3d()
@@ -285,6 +288,9 @@ plot_shade_wood <- function(qsm, sun_direction = c(0.25, 0.5, -0.75), col = "gre
 #' plot_shade_items(leaves)
 #' @export
 plot_shade_items <- function(item_pts, sun_direction = c(0.25, 0.5, -0.75), col = "grey", add = TRUE) {
+
+  # remove items with NAs
+  item_pts <- na.omit(item_pts)
 
   # get shadows
   shade_items <- shade_items(sun_direction = sun_direction, item_pts = item_pts)
