@@ -30,6 +30,9 @@ plot_shade_wood(qsm)
 
 ### plot shade of wood + simulated leaves:
 
+# create dummy item regression
+distribution <- dummy_item_distribution()
+
 # create polygons for single item
 leaf <- create_single_leaf(leaf_type = "normal", length_m = 0.1)
 
@@ -49,9 +52,6 @@ plot_shade_wood(qsm)
 plot_shade_items(leaves)
 
 #### plot shade of wood + simulated flowers:
-
-# create dummy item regression
-distribution <- dummy_item_distribution()
 
 # create polygons for single item
 flower <- create_single_flower()

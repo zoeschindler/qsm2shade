@@ -158,7 +158,7 @@ shade_items <- function(sun_direction, item_pts) {
   item_dt_x$pos <- as.numeric(gsub("\\D", "", item_dt_x$variable))
   item_dt_y$pos <- as.numeric(gsub("\\D", "", item_dt_y$variable))
   item_dt_x$variable <- item_dt_y$variable <- NULL
-  item_dt <- data.table::merge(item_dt_x, item_dt_y, by = c("id", "pos"))
+  item_dt <- merge(item_dt_x, item_dt_y, by = c("id", "pos"))
   data.table::setorder(item_dt, id, pos)
   item_dt$pos <- NULL
 
