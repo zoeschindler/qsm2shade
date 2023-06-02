@@ -123,10 +123,10 @@ shade_wood <- function(sun_direction, tree) {
   })
 
   # convert to polygons
-  wood_poly_terra <- do.call(rbind, chull_list) |> vect("polygons")
+  wood_poly_terra <- do.call(rbind, chull_list) |> terra::vect("polygons")
 
   # return polygons
-  return(wrap(wood_poly_terra))
+  return(terra::wrap(wood_poly_terra))
 }
 
 # compile function to make it faster
@@ -158,8 +158,8 @@ shade_items <- function(sun_direction, item_pts) {
   item_dt_x$pos <- as.numeric(gsub("\\D", "", item_dt_x$variable))
   item_dt_y$pos <- as.numeric(gsub("\\D", "", item_dt_y$variable))
   item_dt_x$variable <- item_dt_y$variable <- NULL
-  item_dt <- merge(item_dt_x, item_dt_y, by = c("id", "pos"))
-  setorder(item_dt, id, pos)
+  item_dt <- data.table::merge(item_dt_x, item_dt_y, by = c("id", "pos"))
+  data.table::setorder(item_dt, id, pos)
   item_dt$pos <- NULL
 
   # convert to polygons
@@ -217,22 +217,23 @@ shade_tree <- function(
     # parallel processing
 
     # set up cluster
-    numCores <- detectCores()
-    cl <- makeCluster(numCores, type = "PSOCK")
+    numCores <- parallel::detectCores()
+    cl <- parallel::makeCluster(numCores, type = "PSOCK")
 
     # necessary packages
+    # TODO: shorten
     packages_cl <- list("terra", "raster", "sp", "data.table")
 
     # export objects to cores
     # TODO: shorten
-    clusterExport(cl, list(
+    parallel::clusterExport(cl, list(
       "packages_cl", "tree", "real_radiation", "item_pts",
       "timestep", "sun_direction", "shine_mat",
       "norm_cross"),
       envir = environment())
 
     # execute on all cores
-    clusterEvalQ(cl, {
+    parallel::clusterEvalQ(cl, {
 
       # load packages
       lapply(packages_cl, require, character.only = T)
@@ -240,23 +241,23 @@ shade_tree <- function(
 
     # calculate wood shadows
     message("... creating wood shadows")
-    wood_poly_terra <- parApply(cl, shine_mat, 1, shade_wood_comp, sun_direction = sun_direction, tree = tree)
+    wood_poly_terra <- parallel::parApply(cl, sun_direction, 2, shade_wood_comp, tree = tree)
 
     # calculate item shadows
     if (items) {
       message("... creating item shadows")
-      item_poly_terra <- parApply(cl, shine_mat, 1, shade_items_comp, sun_direction = sun_direction, item_pts = item_pts)
+      item_poly_terra <- parallel::parApply(cl, sun_direction, 2, shade_items_comp, item_pts = item_pts)
     } else {
       item_poly_terra <- NULL
     }
 
     # stop the cluster
-    stopCluster(cl)
+    parallel::stopCluster(cl)
   }
 
   # rasterize the polygons
   message("... deriving rasters")
-  empty_grid <- rast(nlyrs = 1, xmin = -50, xmax = 50, ymin = -25, ymax = 50, vals = 0, resolution = 0.1)
+  empty_grid <- terra::rast(nlyrs = 1, xmin = -50, xmax = 50, ymin = -25, ymax = 50, vals = 0, resolution = 0.1)
   radiation_grid <- apply(matrix(1:length(shine_mat)), 1, function(idx) {
 
     # get sun index
@@ -265,14 +266,14 @@ shade_tree <- function(
     # combine polygons
     if (items) {
       poly_terra <- rbind(
-        vect(wood_poly_terra[[idx]]),
-        vect(item_poly_terra[[idx]]))
+        terra::vect(wood_poly_terra[[idx]]),
+        terra::vect(item_poly_terra[[idx]]))
     } else {
-      poly_terra <- vect(wood_poly_terra[[idx]])
+      poly_terra <- terra::vect(wood_poly_terra[[idx]])
     }
 
     # rasterize polygons
-    polygon_grid <- rasterize(poly_terra, empty_grid, background = 0)
+    polygon_grid <- terra::rasterize(poly_terra, empty_grid, background = 0)
 
     # real weather conditions
     radi_year_curr <- real_radiation[which(real_radiation$hour_format == format(timestep[sun_idx], "%Y-%m-%d %H")),]
@@ -287,7 +288,7 @@ shade_tree <- function(
   })
 
   # stack rasters
-  radiation_grid <- rast(radiation_grid)
+  radiation_grid <- terra::rast(radiation_grid)
 
   # summed up monthly shade
   if (monthly) {
@@ -297,10 +298,10 @@ shade_tree <- function(
       if (length(month_layers) > 0) {
         radiation_grid <- sum(radiation_grid[[month_layers]])
       } else {
-        radiation_grid <- rast(ext(radiation_grid), vals = 0, resolution = res(radiation_grid))
+        radiation_grid <- terra::rast(terra::ext(radiation_grid), vals = 0, resolution = res(radiation_grid))
       }
     })
-    overall_radiation <- rast(overall_radiation)
+    overall_radiation <- terra::rast(overall_radiation)
   }
 
   # summed up annual shade

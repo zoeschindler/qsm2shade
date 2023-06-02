@@ -167,15 +167,15 @@ classify_crown <- function(qsm, crs_epsg = 25832, compass_directions = 8,
     ch_crd <- cbind(id = sections$num[i], x = cyl_center_x[ch_idx], y = cyl_center_y[ch_idx])
 
     # get negative space inside 2m buffer
-    ch_lin <- vect(ch_crd, "polygons", crs = paste0("EPSG:", crs_epsg))
-    ch_buff <- buffer(ch_lin, -outside_buffer_m)
+    ch_lin <- terra::vect(ch_crd, "polygons", crs = paste0("EPSG:", crs_epsg))
+    ch_buff <- terra::buffer(ch_lin, -outside_buffer_m)
 
     # check if there is negative space
-    if (expanse(ch_buff) > 0) {
+    if (terra::expanse(ch_buff) > 0) {
 
       # get indices of points within the negative space
-      pts <- vect(cbind(x = cyl_center_x[lyr_idx], y = cyl_center_y[lyr_idx]), "points", crs = paste0("EPSG:", crs_epsg))
-      inside_idx <- is.related(pts, ch_buff, "within")
+      pts <- terra::vect(cbind(x = cyl_center_x[lyr_idx], y = cyl_center_y[lyr_idx]), "points", crs = paste0("EPSG:", crs_epsg))
+      inside_idx <- terra::is.related(pts, ch_buff, "within")
 
       # within buffer -> outside crown | outside buffer -> inside crown
       cyl_horizontal[lyr_idx[inside_idx]] <- "in"
