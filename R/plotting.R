@@ -297,7 +297,7 @@ plot_shade_items <- function(item_pts, sun_direction = c(0.25, 0.5, -0.75), col 
   shade_items <- terra::geom(terra::unwrap(shade_items))[,c("geom", "x", "y")]
 
   # plot shadows
-  plot_shade(shade_wood, col = col, add = add)
+  plot_shade(shade_items, col = col, add = add)
 }
 
 ################################################################################
