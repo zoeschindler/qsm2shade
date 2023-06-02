@@ -18,22 +18,30 @@ add_items(
 \arguments{
 \item{qsm}{An object of class \code{QSM}.}
 
-\item{item_distribution}{a}
+\item{item_distribution}{\code{data.frame}, describes the item distribution,
+with columns \code{c("diam_start_m", "diam_end_m", "m_per_item",
+"item_scaling")}, optionally including variables from \code{classify_crown()}..}
 
-\item{item_poly}{a}
+\item{item_poly}{\code{matrix} or \code{list}, item to be simulated,
+contains coordinates of a single polygon in a matrix or a list of matrices.}
 
-\item{stem_len}{a}
+\item{stem_len}{\code{numeric}, item stem length.}
 
-\item{item_type}{a}
+\item{item_type}{\code{character}, type of added items, either
+\code{"leaves"} or \code{"flowers"}}
 
-\item{item_angle}{a}
+\item{item_angle}{\code{numeric}, the angle between the ground and the leaf
+axis in degrees when simulating leaves.}
 
-\item{cylinder_classes}{a (optional)}
+\item{cylinder_classes}{\code{matrix} (optional), crown classification of
+each cylinder when using an item distribution including variables from
+\code{classify_crown()}.}
 
-\item{add_noise}{a (optional)}
+\item{add_noise}{\code{numeric} (optional), fraction of the stem length used
+for adding noise to the item location and stem length, 0 means no noise.}
 }
 \value{
-A matrix. Contains coordinates of the simulated items. For each polygon node
+\code{matrix}, contains coordinates of the simulated items. For each polygon node
 of the initial \code{item_poly}, three columns for the xyz-coordinates are
 given.
 }
@@ -66,8 +74,8 @@ distribution_classes <- dummy_item_distribution(classification = TRUE)
 
 # add items
 add_items(qsm, distribution_classes, flower, item_type = "flowers", cylinder_classes = classes)
-
 }
 \seealso{
-\code{\link{classify_crown}}, \code{\link{classify_crown}}
+\code{\link{dummy_item_distribution}},
+\code{\link{create_single_flower}}, \code{\link{create_single_leaf}}
 }
