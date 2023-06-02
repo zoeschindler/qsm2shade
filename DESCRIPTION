@@ -1,0 +1,29 @@
+Package: qsm2shade
+Type: Package
+Title: Analyze shadow casting of QSMs
+Version: 0.1.0
+Authors@R: person("Zoe", "Schindler", email = "zoe.schindler@wwd.uni-freiburg.de", role = c("aut", "cre"), comment = c(ORCID = "0000-0003-2972-1920"))
+Description: qsm2shade is an R package to analyze shadow casting of QSMs (quantitative structure models) created in Matlab using TreeQSM and read in by qsm2r.
+License: GPL-3.0 license
+Encoding: UTF-8
+LazyData: true
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+Imports:
+	compiler,
+	plyr,
+	dplyr,
+	insol,
+	raster,
+	sp,
+	terra,
+	tidyr,
+	lubridate,
+	data.table,
+	parallel,
+	rgl
+URL: https://github.com/zoeschindler/qsm2shade
+RoxygenNote: 7.2.3
+TreeQSMNote: 2.4.1

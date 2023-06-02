@@ -1,0 +1,14 @@
+citHeader("To cite qsm2shade in publications use:")
+
+citEntry(
+  entry    = "misc",
+  title    = "qsm2shade: Analyze shadow casting of QSMs",
+  author   = person(given = "Zoe", family = "Schindler", comment = c(ORCID = "0000-0003-2972-1920")),
+  year     = "2023",
+  url      = "https://github.com/zoeschindler/qsm2shade",
+  textVersion = paste(
+    "Schindler, Z. (2023).",
+    "qsm2shade: Analyze shadow casting of QSMs.",
+    "URL:https://github.com/zoeschindler/qsm2shade"
+  )
+)
