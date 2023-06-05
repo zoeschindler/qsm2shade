@@ -7,7 +7,7 @@
 dummy_item_distribution(classification = FALSE)
 }
 \arguments{
-\item{classification}{\code{boolean}, whether the  variables from
+\item{classification}{\code{boolean}, whether the variables from
 \code{classify_crown()} should be included.}
 }
 \value{

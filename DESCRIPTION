@@ -14,12 +14,8 @@ VignetteBuilder: knitr
 Imports:
 	compiler,
 	plyr,
-	dplyr,
 	insol,
-	raster,
-	sp,
 	terra,
-	tidyr,
 	lubridate,
 	data.table,
 	parallel,

@@ -139,7 +139,7 @@ create_single_leaf <- function(leaf_type = c("normal", "heart", "feather"), leng
 #' \code{dummy_item_distribution} creates a dummy item distribution to be used
 #' by \code{add_item()}.
 #'
-#' @param classification \code{boolean}, whether the  variables from
+#' @param classification \code{boolean}, whether the variables from
 #' \code{classify_crown()} should be included.
 #'
 #' @return
@@ -183,7 +183,7 @@ dummy_item_distribution <- function(classification = FALSE) {
 
 ################################################################################
 
-#' Add leaves or flowers
+#' Add leaves or flowers to QSM
 #'
 #' @description
 #' \code{add_items} simulates leaves or flowers for a \code{QSM} object.
@@ -191,7 +191,7 @@ dummy_item_distribution <- function(classification = FALSE) {
 #' @param qsm An object of class \code{QSM}.
 #' @param item_distribution \code{data.frame}, describes the item distribution,
 #' with columns \code{c("diam_start_m", "diam_end_m", "m_per_item",
-#' "item_scaling")}, optionally including variables from \code{classify_crown()}..
+#' "item_scaling")}, optionally including variables from \code{classify_crown()}.
 #' @param item_poly \code{matrix} or \code{list}, item to be simulated,
 #' contains coordinates of a single polygon in a matrix or a list of matrices.
 #' @param stem_len \code{numeric}, item stem length.
@@ -206,9 +206,9 @@ dummy_item_distribution <- function(classification = FALSE) {
 #' for adding noise to the item location and stem length, 0 means no noise.
 #'
 #' @return
-#' \code{matrix}, contains coordinates of the simulated items. For each polygon node
-#' of the initial \code{item_poly}, three columns for the xyz-coordinates are
-#' given.
+#' \code{matrix}, contains coordinates of the simulated items. For each polygon
+#' node of the initial \code{item_poly}, three columns for the xyz-coordinates
+#' are given.
 #'
 #' @seealso \code{\link{dummy_item_distribution}},
 #' \code{\link{create_single_flower}}, \code{\link{create_single_leaf}}

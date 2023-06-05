@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulating.R
 \name{add_items}
 \alias{add_items}
-\title{Add leaves or flowers}
+\title{Add leaves or flowers to QSM}
 \usage{
 add_items(
   qsm,
@@ -20,7 +20,7 @@ add_items(
 
 \item{item_distribution}{\code{data.frame}, describes the item distribution,
 with columns \code{c("diam_start_m", "diam_end_m", "m_per_item",
-"item_scaling")}, optionally including variables from \code{classify_crown()}..}
+"item_scaling")}, optionally including variables from \code{classify_crown()}.}
 
 \item{item_poly}{\code{matrix} or \code{list}, item to be simulated,
 contains coordinates of a single polygon in a matrix or a list of matrices.}
@@ -41,9 +41,9 @@ each cylinder when using an item distribution including variables from
 for adding noise to the item location and stem length, 0 means no noise.}
 }
 \value{
-\code{matrix}, contains coordinates of the simulated items. For each polygon node
-of the initial \code{item_poly}, three columns for the xyz-coordinates are
-given.
+\code{matrix}, contains coordinates of the simulated items. For each polygon
+node of the initial \code{item_poly}, three columns for the xyz-coordinates
+are given.
 }
 \description{
 \code{add_items} simulates leaves or flowers for a \code{QSM} object.
