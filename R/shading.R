@@ -286,6 +286,7 @@ shade_tree <- function(
   # get factor by which the energy has to be divided
   sun_time_step <- difftime(sun_position$timeframe[2], sun_position$timeframe[1], unit = "secs")
   sun_factor_hourly <- lubridate::hours(1) / lubridate::seconds(sun_time_step)
+  sun_factor_hourly <- ifelse(is.na(sun_factor_hourly), 1, sun_factor_hourly)
 
   # sequential processing
   if (sequential) {
