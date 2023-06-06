@@ -116,9 +116,9 @@ shade_wood <- function(sun_direction, tree) {
   colnames(cyl_pts) <- cyl_cols
 
   # get coordinate cols
-  px_cols <- which(endsWith(cyl_cols, "x"))
-  py_cols <- which(endsWith(cyl_cols, "y"))
-  pz_cols <- which(endsWith(cyl_cols, "z"))
+  px_cols <- endsWith(cyl_cols, "x")
+  py_cols <- endsWith(cyl_cols, "y")
+  pz_cols <- endsWith(cyl_cols, "z")
 
   # prepare storage
   projected <- matrix(NA, nrow = nrow(tree), ncol = c(2 * 8)) # for 8 x-y coordinates
@@ -129,7 +129,7 @@ shade_wood <- function(sun_direction, tree) {
     1:nrow(cyl_pts),
     cyl_pts[,px_cols] + dist * sun_direction[1],
     cyl_pts[,py_cols] + dist * sun_direction[2]),
-    ncol = 1 + length(px_cols) * 2)
+    ncol = 1 + sum(px_cols) * 2)
   colnames(projected) <- c("id", cyl_cols[px_cols], cyl_cols[py_cols])
 
   # get columns with coordinates
@@ -172,7 +172,7 @@ shade_items <- function(sun_direction, item_pts) {
     1:nrow(item_pts),
     item_pts[,px_cols] + dist * sun_direction[1],
     item_pts[,py_cols] + dist * sun_direction[2]),
-    ncol = 1 + length(px_cols) * 2)
+    ncol = 1 + sum(px_cols) * 2)
   colnames(projected) <- c("id", poly_cols[px_cols], poly_cols[py_cols])
 
   # convert to geom format
