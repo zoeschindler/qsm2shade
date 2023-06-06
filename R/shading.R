@@ -265,8 +265,11 @@ shade_items_comp <- compiler::cmpfun(shade_items)
 #' # calculate shade
 #' result <- shade_tree(qsm, sun_position, radiation_hourly, item_pts = leaf_pts)
 #'
-#' # show shade
-#' plot(result)
+#' # summarize per day
+#' result_daily <- shade_summarize(result, "day")
+#'
+#' # plot daily shade
+#' terra::plot(result_daily)
 #' @export
 shade_tree <- function(
     qsm, sun_position, radiation_hourly, resolution = 0.1, item_pts = NULL,

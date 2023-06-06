@@ -87,8 +87,11 @@ leaf_pts <- add_items(qsm, distribution, leaf, item_type = "leaves")
 # calculate shade
 result <- shade_tree(qsm, sun_position, radiation_hourly, item_pts = leaf_pts)
 
-# show shade
-plot(result)
+# summarize per day
+result_daily <- shade_summarize(result, "day")
+
+# plot daily shade
+terra::plot(result_daily)
 }
 \seealso{
 \code{\link{shade_summarize}}, \code{\link{sun_movement}},
