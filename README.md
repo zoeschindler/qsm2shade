@@ -1,6 +1,6 @@
 # qsm2shade: Analyze shadow casting of QSMs
 
-## Description
+## Description <img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/logo.png" align="right" width = 290/>
 
 `qsm2shade` is an R package ... TODO
 
