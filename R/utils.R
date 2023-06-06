@@ -34,21 +34,25 @@ norm_cross <- function(v, w) {
 ################################################################################
 
 # get branch IDs if child branches
-find_my_childs_recursive <- function(cyl_df, branch_ID) {
+find_childs_recursive_branch <- function(cylinder, branch_ID, include_self = TRUE) {
 
   # get cylinders of the branches
-  cyl_sub <- cyl_df[cyl_df$branch %in% branch_ID,]
+  cyl_sub <- cylinder[cylinder$branch %in% branch_ID,]
 
   # get all cylinders which are children of the branches
-  cyl_childs <- cyl_df[cyl_df$parent %in% cyl_sub$ID & !(cyl_df$branch %in% branch_ID),]
+  cyl_childs <- cylinder[cylinder$parent %in% cyl_sub$ID & !(cylinder$branch %in% branch_ID),]
 
   # return the branch IDs of the children
   if (nrow(cyl_childs) == 0) {
     return(NULL)
   } else {
     id_childs <- unique(cyl_childs$branch)
-    id_childs_childs <- find_my_childs_recursive(cyl_df, id_childs)
-    return(c(id_childs, id_childs_childs))
+    id_childs_childs <- find_childs_recursive_branch(cylinder, id_childs)
+    if (include_self) {
+      return(c(branch_ID, id_childs, id_childs_childs))
+    } else {
+      return(c(id_childs, id_childs_childs))
+    }
   }
 }
 

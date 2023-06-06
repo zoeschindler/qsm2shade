@@ -112,8 +112,8 @@ classify_crown <- function(qsm, compass_directions = c(0, 4, 8),
     cyl_branches <- data.frame(cbind("ID" = 1:nrow(tree), tree, "FirstOrderBranch" = NA))
     cyl_branches$FirstOrderBranch[cyl_branches$BranchOrder == 0] <- 0
     for (main_branch in unique(cyl_branches[cyl_branches$BranchOrder == 1, "branch"])) {
-      child_branch <- find_my_childs_recursive(cyl_branches, main_branch)
-      cyl_branches$FirstOrderBranch[cyl_branches$branch %in% c(main_branch, child_branch)] <- main_branch
+      child_branch <- find_childs_recursive_branch(cyl_branches, main_branch, TRUE)
+      cyl_branches$FirstOrderBranch[cyl_branches$branch %in% child_branch] <- main_branch
     }
 
     # get lowest first order branch with at least min_cylinders_cbh cylinders
