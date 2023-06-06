@@ -57,6 +57,7 @@ plot_shade_items(leaves)
 ```
 
 ## Example: Calculate QSM shade for one day
+
 ```R
 # load qsm
 file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
@@ -110,6 +111,6 @@ plot(shade_tree(
 
 Author: Zoe Schindler, <a href = "https://www.iww.uni-freiburg.de/">Chair of Forest Growth and Dendroecology</a>, <a href = "https://uni-freiburg.de/">University of Freiburg</a>
 
-Shading algorithm based on:
+**Shading based on:**
 Rosskopf E, Morhart C, Nahm M. Modelling Shadow Using 3D Tree Models in High Spatial and Temporal Resolution. Remote Sensing. 2017; 9(7):719. <a href = "https://doi.org/10.3390/rs9070719">doi: 10.3390/rs9070719</a>
 

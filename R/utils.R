@@ -31,6 +31,8 @@ norm_cross <- function(v, w) {
   return(cross / sqrt(cross[,1]**2 + cross[,2]**2 + cross[,3]**2))
 }
 
+################################################################################
+
 # get branch IDs if child branches
 find_my_childs_recursive <- function(cyl_df, branch_ID) {
 

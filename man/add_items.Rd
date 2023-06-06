@@ -67,7 +67,7 @@ add_items(qsm, distribution, flower, item_type = "flowers")
 # with classification:
 
 # classify crown cylinders
-classes <- classify_crown(qsm)
+classes <- classify_crown(qsm, compass_directions = 8, outside_buffer_m = 2, vertical_sections = 3)
 
 # create dummy item regression
 distribution_classes <- dummy_item_distribution(classification = TRUE)

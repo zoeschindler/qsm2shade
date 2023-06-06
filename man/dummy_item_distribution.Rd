@@ -15,7 +15,8 @@ dummy_item_distribution(classification = FALSE)
 }
 \description{
 \code{dummy_item_distribution} creates a dummy item distribution to be used
-by \code{add_item()}.
+by \code{add_item()}. When setting \code{classification = TRUE}, 8 compass
+directions, 2 horizontal sections and 3 vertical sections are used.
 }
 \examples{
 # create dummy item regression

@@ -6,32 +6,29 @@
 \usage{
 classify_crown(
   qsm,
-  crs_epsg = 25832,
-  compass_directions = 8,
-  min_cylinders_cbh = 3,
-  vertical_sections = 3,
-  outside_buffer_m = 2
+  compass_directions = c(0, 4, 8),
+  outside_buffer_m = 2,
+  vertical_sections = c(0, 2, 3),
+  min_cylinders_cbh = 3
 )
 }
 \arguments{
 \item{qsm}{An object of class \code{QSM}.}
 
-\item{crs_epsg}{\code{integer}, EPSG code of the coordinate reference system.}
-
-\item{compass_directions}{\code{integer}, number of compass directions.}
-
-\item{min_cylinders_cbh}{\code{integer}, minimum number of cylinders of the lowest branch
-defining crown base height.}
-
-\item{vertical_sections}{\code{integer}, number of vertical crown sections.}
+\item{compass_directions}{\code{integer}, number of compass directions (0,4,8).}
 
 \item{outside_buffer_m}{\code{numeric}, width of the buffer defining the outer and inner
 horizontal section in meters.}
+
+\item{vertical_sections}{\code{integer}, number of vertical crown sections.}
+
+\item{min_cylinders_cbh}{\code{integer}, minimum number of cylinders of the lowest branch
+defining crown base height.}
 }
 \value{
 \code{matrix}, contains three columns: \code{compass} (compass directions),
-\code{vertical} (vertical crown sections) and \code{horizontal} (horizontal
-crown sections).
+\code{vertical} (vertical crown sections, 1 = lowest, n = highest) and
+\code{horizontal} (horizontal crown sections).
 }
 \description{
 \code{classify_crown} classifies the cylinders of a \code{QSM} object into
@@ -45,7 +42,7 @@ file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="
 qsm <- qsm2r::readQSM(file_path)
 
 # classify crown cylinders
-classify_crown(qsm)
+classify_crown(qsm, compass_directions = 8, outside_buffer_m = 2, vertical_sections = 3)
 }
 \seealso{
 \code{\link{add_items}}

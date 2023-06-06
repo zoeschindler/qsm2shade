@@ -137,7 +137,8 @@ create_single_leaf <- function(leaf_type = c("normal", "heart", "feather"), leng
 #'
 #' @description
 #' \code{dummy_item_distribution} creates a dummy item distribution to be used
-#' by \code{add_item()}.
+#' by \code{add_item()}. When setting \code{classification = TRUE}, 8 compass
+#' directions, 2 horizontal sections and 3 vertical sections are used.
 #'
 #' @param classification \code{boolean}, whether the variables from
 #' \code{classify_crown()} should be included.
@@ -232,7 +233,7 @@ dummy_item_distribution <- function(classification = FALSE) {
 #' # with classification:
 #'
 #' # classify crown cylinders
-#' classes <- classify_crown(qsm)
+#' classes <- classify_crown(qsm, compass_directions = 8, outside_buffer_m = 2, vertical_sections = 3)
 #'
 #' # create dummy item regression
 #' distribution_classes <- dummy_item_distribution(classification = TRUE)
