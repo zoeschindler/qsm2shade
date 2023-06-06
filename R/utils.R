@@ -40,7 +40,7 @@ find_childs_recursive_branch <- function(cylinder, branch_ID, include_self = TRU
   cyl_sub <- cylinder[cylinder$branch %in% branch_ID,]
 
   # get all cylinders which are children of the branches
-  cyl_childs <- cylinder[cylinder$parent %in% cyl_sub$ID & !(cylinder$branch %in% branch_ID),]
+  cyl_childs <- cylinder[cylinder$parent %in% cyl_sub$cyl_id & !(cylinder$branch %in% branch_ID),]
 
   # return the branch IDs of the children
   if (nrow(cyl_childs) == 0) {
