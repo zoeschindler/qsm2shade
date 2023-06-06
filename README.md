@@ -93,7 +93,7 @@ qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
 plot_shade_wood(qsm, sun_dir)
 ```
 
-<img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_plot_shade_wood.png" align="center" width = 800/>
+<img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_plot_shade_wood.png" align="center" width = 600/>
 
 ```R
 # plot shading raster of wood
@@ -104,7 +104,7 @@ plot(shade_tree(
   xmin = -10,xmax = 10, ymin = -10, ymax = 10), col = c("#296682", "#81B1C4"))
 ```
 
-<img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_shade_tree.png" align="center" width = 800/>
+<img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_shade_tree.png" align="center" width = 600/>
 
 ## About
 
