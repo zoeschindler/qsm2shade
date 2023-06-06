@@ -102,7 +102,7 @@ sun_position <- sun_movement(ISOdate(2020, 03, 22, 12, 0), latitude = 48.07, lon
 sun_position[,1:3] <- sun_dir
 plot(shade_tree(
   qsm, sun_position, dummy_radiation_hourly(), resolution = 0.01,
-  xmin = -10,xmax = 10, ymin = -10, ymax = 10), col = c("#296682", "#81B1C4"))
+  xmin = -10, xmax = 10, ymin = -10, ymax = 10), col = c("#296682", "#81B1C4"))
 ```
 
 <img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_shade_tree.png" align="center" width = 600/>
