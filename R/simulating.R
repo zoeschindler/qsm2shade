@@ -105,7 +105,7 @@ create_single_flower <- function(radius_m = 0.01) {
 create_single_leaf <- function(leaf_type = c("normal", "heart", "feather"), length_m = 0.01) {
 
   # check input validity
-  if (length(leaf_type) > 1 | !(leaf_type %in% c("normal", "heart", "feather"))) {
+  if (length(leaf_type) > 1 | !any(leaf_type %in% c("normal", "heart", "feather"))) {
     stop("item_type must be 'normal', 'heart' or 'feather'")
   }
 
