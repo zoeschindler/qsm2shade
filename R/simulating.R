@@ -246,7 +246,7 @@ add_items <- function(qsm, item_distribution, item_poly, stem_len = 0.01,
                       cylinder_classes = NULL, add_noise = 0) {
 
   # check input validity
-  if (length(item_type) > 1 | !(item_type %in% c("leaves", "flowers"))) {
+  if (length(item_type) > 1 | !any(item_type %in% c("leaves", "flowers"))) {
     stop("item_type must be 'leaves' or 'flowers'")
   }
 
