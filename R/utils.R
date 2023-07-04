@@ -59,6 +59,7 @@ find_childs_recursive_branch <- function(cylinder, branch_ID, include_self = TRU
     }
   }
 }
+
 ################################################################################
 
 # prepare qsm for processing
