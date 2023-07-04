@@ -89,7 +89,7 @@ classify_crown <- function(qsm, compass_directions = c(0, 4, 8),
     cyl_compass <- lapply(1:nrow(tree), function(idx) {
       compass <- sections$name[sections$lower <= cyl_azimuth[idx] & sections$upper > cyl_azimuth[idx]]
       if (length(compass) == 0) {
-        compass <- "N"
+        compass <- NA
       }
       return(compass)
     })
