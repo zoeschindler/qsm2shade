@@ -74,7 +74,7 @@ radiation_hourly <- dummy_radiation_hourly(ISOdate(2020, 01, 01, 0, 0), ISOdate(
 result <- shade_tree(qsm, sun_position, radiation_hourly, resolution = 0.1)
 
 # show shade
-plot(result)
+terra::plot(result)
 ```
 
 ## Comparison: 3D plot and 2D raster
@@ -100,7 +100,7 @@ plot_shade_wood(qsm, sun_dir)
 # plot shading raster of wood
 sun_position <- sun_movement(ISOdate(2020, 03, 22, 12, 0), latitude = 48.07, longitude = 7.60)
 sun_position[,1:3] <- sun_dir
-plot(shade_tree(
+terra::plot(shade_tree(
   qsm, sun_position, dummy_radiation_hourly(), resolution = 0.01,
   xmin = -10, xmax = 10, ymin = -10, ymax = 10), col = c("#296682", "#81B1C4"))
 ```
