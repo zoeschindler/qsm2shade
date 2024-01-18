@@ -421,7 +421,7 @@ shade_tree <- function(
 #' # plot daily shade
 #' terra::plot(result_daily)
 #' @export
-shade_summarize <- function(radiation_grid, period = c("day", "month", "year", "total")) {
+shade_summarize <- function(radiation_grid, period = c("day", "month", "year", "total"), na.rm = TRUE) {
 
   # check input validity
   if (length(period) > 1 | !any(period %in% c("day", "month", "year", "total"))) {
@@ -433,7 +433,7 @@ shade_summarize <- function(radiation_grid, period = c("day", "month", "year", "
 
   # add everything together
   if (period == "total") {
-    summarized <- sum(radiation_grid)
+    summarized <- sum(radiation_grid, na.rm = na.rm)
     return(summarized)
   }
 
@@ -441,7 +441,7 @@ shade_summarize <- function(radiation_grid, period = c("day", "month", "year", "
   period_all <- sort(unique(lubridate::floor_date(timestep, period)))
   summarized <- apply(matrix(period_all), 1, function(period_curr) {
     period_layers <- lubridate::floor_date(timestep, period) == period_curr
-    period_grid <- sum(radiation_grid[[period_layers]])
+    period_grid <- sum(radiation_grid[[period_layers]], na.rm = na.rm)
     return(period_grid)})
   summarized <- terra::rast(summarized)
 
