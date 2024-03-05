@@ -35,13 +35,13 @@ norm_cross <- function(v, w) {
 
 # get branch IDs if child branches
 find_childs_recursive_branch <- function(cylinder, branch_ID, include_self = TRUE) {
-  
+
   # get cylinders of the branches
   cyl_sub <- cylinder[cylinder$branch %in% branch_ID,]
-  
+
   # get all cylinders which are children of the branches
   cyl_childs <- cylinder[cylinder$parent %in% cyl_sub$cyl_id & !(cylinder$branch %in% branch_ID),]
-  
+
   # return the branch IDs of the children
   if (nrow(cyl_childs) == 0) {
     if (include_self) {
@@ -63,7 +63,7 @@ find_childs_recursive_branch <- function(cylinder, branch_ID, include_self = TRU
 ################################################################################
 
 # prepare qsm for processing
-prepare_qsm <- function(qsm, center = TRUE, keep_all = FALSE) {
+prepare_qsm <- function(qsm, keep_all = FALSE) {
 
   # check data type
   if (any("QSM" %in% class(qsm))) {
@@ -80,14 +80,7 @@ prepare_qsm <- function(qsm, center = TRUE, keep_all = FALSE) {
   # get relevant columns
   if (!keep_all) {
     cylinder <- cylinder[,c("radius", "length", "start_X", "start_Y", "start_Z", "axis_X", "axis_Y", "axis_Z")]
-  }
-
-  # center coordinates
-  if (center) {
-    stembase <- cylinder[1,]
-    cylinder[,"start_X"] = cylinder[,"start_X"] - stembase["start_X"]
-    cylinder[,"start_Y"] = cylinder[,"start_Y"] - stembase["start_Y"]
-    cylinder[,"start_Z"] = cylinder[,"start_Z"] - stembase["start_Z"]
+    # removes cyl_id, parent, extension, added, UnmodRadius, branch, SurfCov, mad, BranchOrder, PositionInBranch
   }
 
   # calculate end coordinates

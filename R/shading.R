@@ -276,7 +276,7 @@ shade_tree <- function(
     sequential = TRUE, xmin = -50, xmax = 50, ymin = -25, ymax = 50) {
 
   # prepare tree data
-  tree <- prepare_qsm(qsm)
+  tree <- prepare_qsm(qsm, keep_all = FALSE)
 
   # prepare sun data (get day data only)
   timestep <- unique(sun_position$timeframe[sun_position$day])

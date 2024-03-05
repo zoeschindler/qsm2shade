@@ -251,7 +251,7 @@ add_items <- function(qsm, item_distribution, item_poly, stem_len = 0.01,
   }
 
   # prepare tree data
-  tree <- prepare_qsm(qsm)
+  tree <- prepare_qsm(qsm, keep_all = FALSE)
 
   # add diameter class to each cylinder
   class_width <- unique(round(item_distribution$diam_end_m - item_distribution$diam_start_m, 4))

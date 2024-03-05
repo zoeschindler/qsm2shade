@@ -209,7 +209,7 @@ plot_shade <- function(shade, col = "grey", add = TRUE) {
 plot_shade_wood <- function(qsm, sun_direction = c(0.25, 0.5, -0.75), col = "grey", add = TRUE) {
 
   # prepare qsm
-  tree <- prepare_qsm(qsm)
+  tree <- prepare_qsm(qsm, keep_all = FALSE)
 
   # get shadows
   shade_wood <- shade_wood(sun_direction = sun_direction, tree = tree)

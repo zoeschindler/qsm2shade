@@ -38,7 +38,7 @@ classify_crown <- function(qsm, compass_directions = c(0, 4, 8),
                            min_cylinders_cbh = 3) {
 
   # prepare tree data
-  tree <- prepare_qsm(qsm, center = TRUE, keep_all = TRUE)
+  tree <- prepare_qsm(qsm, keep_all = TRUE)
 
   # get xyz-centers of cylinders
   cyl_center_x <- (tree[,"start_X"] + tree[,"end_X"]) / 2
