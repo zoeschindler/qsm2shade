@@ -275,7 +275,11 @@ add_items <- function(qsm, item_distribution, item_poly, stem_len = 0.01,
   tree <- na.omit(tree)
 
   # add number  of items to cylinder
-  tree <- cbind(tree, "items" = round(tree[,"length"] / tree[,"m_per_item"]))
+  tree <- cbind(tree, "item_p" = tree[,"length"] / tree[,"m_per_item"])
+  tree <- cbind(tree, "items" = ifelse(
+    tree[,"item_p"] >= 1,
+    round(tree[,"item_p"]),
+    rbinom(length(tree[,"item_p"]), 1, tree[,"item_p"] %% 1))) # modulo 1 to avoid warnings
 
   # remove unnecessary columns
   tree <- tree[,!colnames(tree) %in% c("diam_start_m")]
@@ -293,6 +297,11 @@ add_items <- function(qsm, item_distribution, item_poly, stem_len = 0.01,
     # create noise (stem base)
     if (add_noise > 0) {
       length <- length + runif(length(length), min = -stem_len * add_noise, max = +stem_len * add_noise)
+    }
+
+    # check if length smaller than cylinder length
+    if (sub["items"] == 1 & sub["item_p"] < 1) {
+      length <- sub["length"] / 2
     }
 
     # create new matrix with one row per item
