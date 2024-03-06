@@ -11,10 +11,11 @@ shade_tree(
   resolution = 0.1,
   item_pts = NULL,
   sequential = TRUE,
-  xmin = -50,
-  xmax = 50,
-  ymin = -25,
-  ymax = 50
+  xmin = -20,
+  xmax = 20,
+  ymin = -20,
+  ymax = 20,
+  alpha = 1
 )
 }
 \arguments{
@@ -33,6 +34,9 @@ parallel processing (\code{FALSE}) should be used.}
 
 \item{xmin, xmax, ymin, ymax}{\code{numeric}, extent of the shading raster in
 meters, relative to the stem base.}
+
+\item{alpha}{\code{numeric}, alpha of the item shade, 1 = full shade, 0.5 =
+half-shade, 0 = no shade.}
 }
 \value{
 \code{SpatRaster}, contains radiation around the tree for each

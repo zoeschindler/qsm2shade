@@ -213,6 +213,8 @@ shade_items_comp <- compiler::cmpfun(shade_items)
 #' @param resolution \code{numeric}, spatial resolution of output rasters.
 #' @param xmin,xmax,ymin,ymax \code{numeric}, extent of the shading raster in
 #' meters, relative to the stem base.
+#' @param alpha \code{numeric}, alpha of the item shade, 1 = full shade, 0.5 =
+#' half-shade, 0 = no shade.
 #'
 #' @return
 #' \code{SpatRaster}, contains radiation around the tree for each
@@ -278,10 +280,11 @@ shade_items_comp <- compiler::cmpfun(shade_items)
 #' @export
 shade_tree <- function(
     qsm, sun_position, radiation, resolution = 0.1, item_pts = NULL,
-    sequential = TRUE, xmin = -50, xmax = 50, ymin = -25, ymax = 50) {
+    sequential = TRUE, xmin = -20, xmax = 20, ymin = -20, ymax = 20,
+    alpha = 1) {
 
   # prepare tree data
-  tree <- prepare_qsm(qsm, keep_all = FALSE)
+  tree <- qsm2shade:::prepare_qsm(qsm, keep_all = FALSE)
 
   # prepare sun data (get day data only)
   timestep <- unique(sun_position$timeframe[sun_position$day])
@@ -309,17 +312,23 @@ shade_tree <- function(
     rad_factor <- ifelse(is.na(rad_factor), 1, rad_factor)
   }
 
+  # prepare radiation data
+  radiation$direct_energy_per_area  <- radiation$global_energy_per_area - radiation$diffuse_energy_per_area
+  radiation$direct_energy_per_area  <- radiation$direct_energy_per_area  / rad_factor
+  radiation$diffuse_energy_per_area <- radiation$diffuse_energy_per_area / rad_factor
+  radiation$global_energy_per_area  <- radiation$global_energy_per_area  / rad_factor
+
   # sequential processing
   if (sequential) {
 
     # calculate wood shadows
     message("... creating wood shadows")
-    wood_poly_terra <- apply(sun_direction, 2, shade_wood_comp, tree = tree)
+    wood_poly_terra <- apply(sun_direction, 2, qsm2shade:::shade_wood_comp, tree = tree)
 
     # calculate item shadows
     if (!is.null(item_pts)) {
       message("... creating item shadows")
-      item_poly_terra <- apply(sun_direction, 2, shade_items_comp, item_pts = item_pts)
+      item_poly_terra <- apply(sun_direction, 2, qsm2shade:::shade_items_comp, item_pts = item_pts)
 
     } else {
       item_poly_terra <- NULL
@@ -365,8 +374,7 @@ shade_tree <- function(
     parallel::stopCluster(cl)
   }
 
-  # TODO: parallelize raster creation as well?
-  # rasterize the polygons
+  # prepare empty raster for storage
   message("... deriving rasters")
   stem_base <- qsm2r::get_location(qsm)
   empty_grid <- terra::rast(nlyrs = 1, res = resolution, vals = 0,
@@ -374,27 +382,37 @@ shade_tree <- function(
                             xmax = stem_base[["x"]] + xmax,
                             ymin = stem_base[["y"]] + ymin,
                             ymax = stem_base[["y"]] + ymax)
+
+  # rasterize the polygons
   radiation_grid <- apply(matrix(1:length(timestep)), 1, function(idx) {
 
-    # combine polygons
-    if (!is.null(item_pts)) {
-      poly_terra <- rbind(
-        terra::vect(wood_poly_terra[[idx]]),
-        terra::vect(item_poly_terra[[idx]]))
-    } else {
-      poly_terra <- terra::vect(wood_poly_terra[[idx]])
-    }
+    # combine & rasterize polygons
+    if (!is.null(item_pts) & alpha < 1) {
+      curr_wood <- terra::vect(wood_poly_terra[[idx]])
+      curr_item <- terra::vect(item_poly_terra[[idx]])
+      curr_wood$shading <- 1
+      curr_item$shading <- alpha
+      poly_terra <- rbind(curr_wood, curr_item)
+      polygon_grid <- terra::rasterize(poly_terra, empty_grid, field = "shading", fun = "sum", background = 0)
+      polygon_grid[polygon_grid > 1] <- 1
 
-    # TODO: HERE I NEED CHANGES (if transparency)
-    # rasterize polygons
-    polygon_grid <- terra::rasterize(poly_terra, empty_grid, background = 0)
+    } else {
+      if (!is.null(item_pts) & alpha == 1) {
+        poly_terra <- rbind(
+          terra::vect(wood_poly_terra[[idx]]),
+          terra::vect(item_poly_terra[[idx]]))
+      } else { # only wood
+        poly_terra <- terra::vect(wood_poly_terra[[idx]])
+      }
+      polygon_grid <- terra::rasterize(poly_terra, empty_grid, background = 0)
+    }
 
     # add radiation data
     # (assumes that radiation is radiation sum until the previous measurement)
     # (converts from radiation resolution (sum) to sun direction resolution (avg))
     radiation_curr <- radiation[radiation$timestamp == lubridate::ceiling_date(timestep[idx], paste(rad_interval, "aseconds")),]
-    polygon_grid <- polygon_grid * radiation_curr[,"diffuse_energy_per_area"] / rad_factor
-    polygon_grid[polygon_grid == 0] <- radiation_curr[,"global_energy_per_area"] / rad_factor
+    polygon_grid <- (1 - polygon_grid) * radiation_curr[,"direct_energy_per_area"] + radiation_curr[,"diffuse_energy_per_area"]
+    polygon_grid[polygon_grid == 0] <- radiation_curr[,"global_energy_per_area"]
 
     # return raster
     return(polygon_grid)
