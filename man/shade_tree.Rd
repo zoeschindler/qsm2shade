@@ -7,7 +7,7 @@
 shade_tree(
   qsm,
   sun_position,
-  radiation_hourly,
+  radiation,
   resolution = 0.1,
   item_pts = NULL,
   sequential = TRUE,
@@ -22,10 +22,9 @@ shade_tree(
 
 \item{sun_position}{\code{data.frame}, sunlight direction over the time.}
 
-\item{radiation_hourly}{\code{data.frame}, diffuse and global radiation over time.}
+\item{radiation}{\code{data.frame}, diffuse and global radiation over time.}
 
-\item{resolution}{\code{numeric}, extent of the shading raster in
-meters.}
+\item{resolution}{\code{numeric}, spatial resolution of output rasters.}
 
 \item{item_pts}{\code{matrix}, contains coordinates of simulated items.}
 
@@ -38,7 +37,7 @@ meters.}
 \value{
 \code{SpatRaster}, contains radiation around the tree for each
 \code{sun_position}, the unit of the radiation depends on the unit used in
-\code{radiation_hourly}. The single rasters for the time steps are stored as
+\code{radiation}. The single rasters for the time steps are stored as
 layers with the timestamp as names.
 }
 \description{
@@ -47,8 +46,8 @@ layers with the timestamp as names.
 \details{
 The parameter \code{sun_position} determines for which time steps the shade
 is calculated. The \code{resolution} of the shade raster should correspond to
-the unit used in \code{radiation_hourly}, e.g. when using a resolution of
-0.1, the radiation should be given per dm². If the raster cell contains any
+the unit used in \code{radiation}, e.g. when using a resolution of 0.1,
+the radiation should be given per dm². If the raster cell contains any
 shade, the diffuse radiation is assigned. Otherwise, the global radiation is
 assigned. Turning parallel processing on (\code{sequential = FALSE}) might
 only work for windows computers.
@@ -58,17 +57,21 @@ only work for windows computers.
 file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
 qsm <- qsm2r::readQSM(file_path)
 
+# shift qsm to origin
+# (shade is always projected to z = 0)
+qsm <- qsm2r::set_location(qsm, c(0,0,0))
+
 # get sun position at different times
 timeframe <- seq(ISOdate(2020, 03, 22, 0, 0), ISOdate(2020, 03, 22, 23, 50), "10 mins")
 sun_position <- sun_movement(timeframe, latitude = 48.07, longitude = 7.60)
 
 # create dummy radiation data
-radiation_hourly <- dummy_radiation_hourly(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50))
+radiation <- dummy_radiation(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
 
 # without leaves:
 
 # calculate shade
-result <- shade_tree(qsm, sun_position, radiation_hourly)
+result <- shade_tree(qsm, sun_position, radiation)
 
 # show shade
 plot(result)
@@ -85,7 +88,7 @@ distribution <- dummy_item_distribution()
 leaf_pts <- add_items(qsm, distribution, leaf, item_type = "leaves")
 
 # calculate shade
-result <- shade_tree(qsm, sun_position, radiation_hourly, item_pts = leaf_pts)
+result <- shade_tree(qsm, sun_position, radiation, item_pts = leaf_pts)
 
 # summarize per day
 result_daily <- shade_summarize(result, "day")

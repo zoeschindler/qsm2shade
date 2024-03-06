@@ -32,6 +32,10 @@ sun direction.}
 file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
 qsm <- qsm2r::readQSM(file_path)
 
+# shift qsm to origin
+# (shade is always projected to z = 0)
+qsm <- qsm2r::set_location(qsm, c(0,0,0))
+
 # plot qsm
 qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
 

@@ -53,6 +53,10 @@ are given.
 file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
 qsm <- qsm2r::readQSM(file_path)
 
+# shift qsm to origin
+# (shade is always projected to z = 0)
+qsm <- qsm2r::set_location(qsm, c(0,0,0))
+
 # create polygons for single item
 flower <- create_single_flower()
 

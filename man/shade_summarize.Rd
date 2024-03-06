@@ -4,7 +4,11 @@
 \alias{shade_summarize}
 \title{Summarize shade per period}
 \usage{
-shade_summarize(radiation_grid, period = c("day", "month", "year", "total"))
+shade_summarize(
+  radiation_grid,
+  period = c("day", "month", "year", "total"),
+  na.rm = TRUE
+)
 }
 \arguments{
 \item{radiation_grid}{\code{SpatRaster}, stacked set of shade rasters from
@@ -30,10 +34,10 @@ qsm <- qsm2r::readQSM(file_path)
 sun_position <- sun_movement(ISOdate(2020, 03, 22, 0, 0), ISOdate(2020, 03, 23, 23, 50), "10 mins", lat = 48.07, lon = 7.60)
 
 # create dummy radiation data
-radiation_hourly <- dummy_radiation_hourly(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50))
+radiation <- dummy_radiation(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
 
 # calculate shade
-result <- shade_tree(qsm, sun_position, radiation_hourly)
+result <- shade_tree(qsm, sun_position, radiation)
 
 # summarize per day
 result_daily <- shade_summarize(result, "day")
