@@ -212,7 +212,7 @@ shade_items_comp <- compiler::cmpfun(shade_items)
 #' parallel processing (\code{FALSE}) should be used.
 #' @param resolution \code{numeric}, spatial resolution of output rasters.
 #' @param xmin,xmax,ymin,ymax \code{numeric}, extent of the shading raster in
-#' meters.
+#' meters, relative to the stem base.
 #'
 #' @return
 #' \code{SpatRaster}, contains radiation around the tree for each
@@ -368,8 +368,12 @@ shade_tree <- function(
   # TODO: parallelize raster creation as well?
   # rasterize the polygons
   message("... deriving rasters")
+  stem_base <- qsm2r::get_location(qsm)
   empty_grid <- terra::rast(nlyrs = 1, res = resolution, vals = 0,
-                            xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax)
+                            xmin = stem_base[["x"]] + xmin,
+                            xmax = stem_base[["x"]] + xmax,
+                            ymin = stem_base[["y"]] + ymin,
+                            ymax = stem_base[["y"]] + ymax)
   radiation_grid <- apply(matrix(1:length(timestep)), 1, function(idx) {
 
     # combine polygons

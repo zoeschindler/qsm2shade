@@ -32,7 +32,7 @@ shade_tree(
 parallel processing (\code{FALSE}) should be used.}
 
 \item{xmin, xmax, ymin, ymax}{\code{numeric}, extent of the shading raster in
-meters.}
+meters, relative to the stem base.}
 }
 \value{
 \code{SpatRaster}, contains radiation around the tree for each
