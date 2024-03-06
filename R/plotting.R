@@ -200,6 +200,10 @@ plot_shade <- function(shade, col = "grey", add = TRUE) {
 #' file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
 #' qsm <- qsm2r::readQSM(file_path)
 #'
+#' # shift qsm to origin
+#' # (shade is always projected to z = 0)
+#' qsm <- qsm2r::set_location(qsm, c(0,0,0))
+#'
 #' # plot qsm
 #' qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
 #'
@@ -242,6 +246,10 @@ plot_shade_wood <- function(qsm, sun_direction = c(0.25, 0.5, -0.75), col = "gre
 #' # load qsm
 #' file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
 #' qsm <- qsm2r::readQSM(file_path)
+#'
+#' # shift qsm to origin
+#' # (shade is always projected to z = 0)
+#' qsm <- qsm2r::set_location(qsm, c(0,0,0))
 #'
 #' # create dummy item regression
 #' distribution <- dummy_item_distribution()

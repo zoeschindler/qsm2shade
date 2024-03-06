@@ -5,7 +5,7 @@
 #' Create dummy radiation data
 #'
 #' @description
-#' \code{dummy_radiation_hourly} creates dummy radiation data to be used
+#' \code{dummy_radiation} creates dummy radiation data to be used
 #' by \code{shade_tree()}.
 #'
 #' @param start \code{POSIXct}, start time of the radiation data.
@@ -18,13 +18,15 @@
 #'
 #' @examples
 #' # create dummy radiation data
-#' radiation_hourly <- dummy_radiation_hourly(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50))
+#' radiation <- dummy_radiation(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
 #' @export
-dummy_radiation_hourly <- function(
-    start = ISOdate(2020, 01, 01, 0, 0), end = ISOdate(2020, 12, 31, 23, 50)) {
+dummy_radiation <- function(
+    start = ISOdate(2020, 01, 01, 0, 0),
+    end = ISOdate(2020, 12, 31, 23, 50),
+    interval = "1 hour") {
 
   # create dummy data
-  timestamp <- seq(start, end, by = "1 hour")
+  timestamp <- seq(start, end, by = interval)
   diffuse_energy_per_area <- runif(length(timestamp), 0 , 5)
   global_energy_per_area <- diffuse_energy_per_area * runif(length(timestamp), 1, 2)
 
@@ -204,26 +206,25 @@ shade_items_comp <- compiler::cmpfun(shade_items)
 #'
 #' @param qsm An object of class \code{QSM}.
 #' @param sun_position \code{data.frame}, sunlight direction over the time.
-#' @param radiation_hourly \code{data.frame}, diffuse and global radiation over time.
+#' @param radiation \code{data.frame}, diffuse and global radiation over time.
 #' @param item_pts \code{matrix}, contains coordinates of simulated items.
 #' @param sequential \code{boolean}, whether sequential (\code{TRUE}) or
 #' parallel processing (\code{FALSE}) should be used.
-#' @param resolution \code{numeric}, extent of the shading raster in
-#' meters.
+#' @param resolution \code{numeric}, spatial resolution of output rasters.
 #' @param xmin,xmax,ymin,ymax \code{numeric}, extent of the shading raster in
 #' meters.
 #'
 #' @return
 #' \code{SpatRaster}, contains radiation around the tree for each
 #' \code{sun_position}, the unit of the radiation depends on the unit used in
-#' \code{radiation_hourly}. The single rasters for the time steps are stored as
+#' \code{radiation}. The single rasters for the time steps are stored as
 #' layers with the timestamp as names.
 #'
 #' @details
 #' The parameter \code{sun_position} determines for which time steps the shade
 #' is calculated. The \code{resolution} of the shade raster should correspond to
-#' the unit used in \code{radiation_hourly}, e.g. when using a resolution of
-#' 0.1, the radiation should be given per dm². If the raster cell contains any
+#' the unit used in \code{radiation}, e.g. when using a resolution of 0.1,
+#' the radiation should be given per dm². If the raster cell contains any
 #' shade, the diffuse radiation is assigned. Otherwise, the global radiation is
 #' assigned. Turning parallel processing on (\code{sequential = FALSE}) might
 #' only work for windows computers.
@@ -236,17 +237,21 @@ shade_items_comp <- compiler::cmpfun(shade_items)
 #' file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
 #' qsm <- qsm2r::readQSM(file_path)
 #'
+#' # shift qsm to origin
+#' # (shade is always projected to z = 0)
+#' qsm <- qsm2r::set_location(qsm, c(0,0,0))
+#'
 #' # get sun position at different times
 #' timeframe <- seq(ISOdate(2020, 03, 22, 0, 0), ISOdate(2020, 03, 22, 23, 50), "10 mins")
 #' sun_position <- sun_movement(timeframe, latitude = 48.07, longitude = 7.60)
 #'
 #' # create dummy radiation data
-#' radiation_hourly <- dummy_radiation_hourly(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50))
+#' radiation <- dummy_radiation(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
 #'
 #' # without leaves:
 #'
 #' # calculate shade
-#' result <- shade_tree(qsm, sun_position, radiation_hourly)
+#' result <- shade_tree(qsm, sun_position, radiation)
 #'
 #' # show shade
 #' plot(result)
@@ -263,7 +268,7 @@ shade_items_comp <- compiler::cmpfun(shade_items)
 #' leaf_pts <- add_items(qsm, distribution, leaf, item_type = "leaves")
 #'
 #' # calculate shade
-#' result <- shade_tree(qsm, sun_position, radiation_hourly, item_pts = leaf_pts)
+#' result <- shade_tree(qsm, sun_position, radiation, item_pts = leaf_pts)
 #'
 #' # summarize per day
 #' result_daily <- shade_summarize(result, "day")
@@ -272,7 +277,7 @@ shade_items_comp <- compiler::cmpfun(shade_items)
 #' terra::plot(result_daily)
 #' @export
 shade_tree <- function(
-    qsm, sun_position, radiation_hourly, resolution = 0.1, item_pts = NULL,
+    qsm, sun_position, radiation, resolution = 0.1, item_pts = NULL,
     sequential = TRUE, xmin = -50, xmax = 50, ymin = -25, ymax = 50) {
 
   # prepare tree data
@@ -282,14 +287,27 @@ shade_tree <- function(
   timestep <- unique(sun_position$timeframe[sun_position$day])
   sun_position$svy <- sun_position$svy * (-1) # https://doi.org/10.1080/713811744 (N- & S+)
   sun_direction <- t(sun_position[sun_position$day, 1:3])
-
-  # prepare radiation data
   sun_position <- sun_position[order(sun_position$timeframe),]
 
+  # get temporal resolution from sun_position
+  sun_interval <- as.numeric(names(which.max(table(difftime(
+    sun_position$timeframe[2:nrow(sun_position)],
+    sun_position$timeframe[1:(nrow(sun_position) - 1)],
+    units = "secs")))))
+
+  # get temporal resolution from radiation
+  rad_interval <- as.numeric(names(which.max(table(difftime(
+    radiation$timestamp[2:nrow(radiation)],
+    radiation$timestamp[1:(nrow(radiation) - 1)],
+    units = "secs")))))
+
   # get factor by which the energy has to be divided
-  sun_time_step <- difftime(sun_position$timeframe[2], sun_position$timeframe[1], unit = "secs")
-  sun_factor_hourly <- lubridate::hours(1) / lubridate::seconds(sun_time_step)
-  sun_factor_hourly <- ifelse(is.na(sun_factor_hourly), 1, sun_factor_hourly)
+  if (sun_interval == 0) {
+    rad_factor <- 1
+  } else {
+    rad_factor <- rad_interval / sun_interval
+    rad_factor <- ifelse(is.na(rad_factor), 1, rad_factor)
+  }
 
   # sequential processing
   if (sequential) {
@@ -350,7 +368,8 @@ shade_tree <- function(
   # TODO: parallelize raster creation as well?
   # rasterize the polygons
   message("... deriving rasters")
-  empty_grid <- terra::rast(nlyrs = 1, xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, res = resolution, vals = 0)
+  empty_grid <- terra::rast(nlyrs = 1, res = resolution, vals = 0,
+                            xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax)
   radiation_grid <- apply(matrix(1:length(timestep)), 1, function(idx) {
 
     # combine polygons
@@ -362,13 +381,16 @@ shade_tree <- function(
       poly_terra <- terra::vect(wood_poly_terra[[idx]])
     }
 
+    # TODO: HERE I NEED CHANGES (if transparency)
     # rasterize polygons
     polygon_grid <- terra::rasterize(poly_terra, empty_grid, background = 0)
 
     # add radiation data
-    radiation_curr <- radiation_hourly[radiation_hourly$timestamp == lubridate::floor_date(timestep[idx], "hour"),]
-    polygon_grid <- polygon_grid * radiation_curr[,"diffuse_energy_per_area"] / sun_factor_hourly # divide to get from 1h to 10min
-    polygon_grid[polygon_grid == 0] <- radiation_curr[,"global_energy_per_area"] / sun_factor_hourly # divide to get from 1h to 10mi
+    # (assumes that radiation is radiation sum until the previous measurement)
+    # (converts from radiation resolution (sum) to sun direction resolution (avg))
+    radiation_curr <- radiation[radiation$timestamp == lubridate::ceiling_date(timestep[idx], paste(rad_interval, "aseconds")),]
+    polygon_grid <- polygon_grid * radiation_curr[,"diffuse_energy_per_area"] / rad_factor
+    polygon_grid[polygon_grid == 0] <- radiation_curr[,"global_energy_per_area"] / rad_factor
 
     # return raster
     return(polygon_grid)
@@ -410,10 +432,10 @@ shade_tree <- function(
 #' sun_position <- sun_movement(ISOdate(2020, 03, 22, 0, 0), ISOdate(2020, 03, 23, 23, 50), "10 mins", lat = 48.07, lon = 7.60)
 #'
 #' # create dummy radiation data
-#' radiation_hourly <- dummy_radiation_hourly(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50))
+#' radiation <- dummy_radiation(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
 #'
 #' # calculate shade
-#' result <- shade_tree(qsm, sun_position, radiation_hourly)
+#' result <- shade_tree(qsm, sun_position, radiation)
 #'
 #' # summarize per day
 #' result_daily <- shade_summarize(result, "day")
