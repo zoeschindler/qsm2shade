@@ -38,6 +38,10 @@ plot_shade_wood(qsm)
 file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
 qsm <- qsm2r::readQSM(file_path)
 
+# shift qsm to origin
+# (shade is always projected to z = 0)
+qsm <- qsm2r::set_location(qsm, c(0,0,0))
+
 # create dummy item regression
 distribution <- dummy_item_distribution()
 
@@ -67,15 +71,19 @@ plot_shade_items(leaves)
 file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
 qsm <- qsm2r::readQSM(file_path)
 
+# shift qsm to origin
+# (shade is always projected to z = 0)
+qsm <- qsm2r::set_location(qsm, c(0,0,0))
+
 # get sun position at different times (one day, 10 min steps)
 timeframe <- seq(ISOdate(2020, 03, 22, 0, 0), ISOdate(2020, 03, 22, 23, 50), "10 mins")
 sun_position <- sun_movement(timeframe, latitude = 48.07, longitude = 7.60)
 
 # create dummy radiation data
-radiation_hourly <- dummy_radiation_hourly(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50))
+radiation <- dummy_radiation(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
 
 # calculate shade (10cm resolution)
-result <- shade_tree(qsm, sun_position, radiation_hourly, resolution = 0.1)
+result <- shade_tree(qsm, sun_position, radiation, resolution = 0.1)
 
 # show shade
 terra::plot(result)
@@ -87,6 +95,10 @@ terra::plot(result)
 # load qsm
 file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
 qsm <- qsm2r::readQSM(file_path)
+
+# shift qsm to origin
+# (shade is always projected to z = 0)
+qsm <- qsm2r::set_location(qsm, c(0,0,0))
 
 # dummy sun direction
 sun_dir <- c(0.25, -0.5, -0.75)
@@ -105,7 +117,7 @@ plot_shade_wood(qsm, sun_dir)
 sun_position <- sun_movement(ISOdate(2020, 03, 22, 12, 0), latitude = 48.07, longitude = 7.60)
 sun_position[,1:3] <- sun_dir
 terra::plot(shade_tree(
-  qsm, sun_position, dummy_radiation_hourly(), resolution = 0.01,
+  qsm, sun_position, dummy_radiation(), resolution = 0.01,
   xmin = -10, xmax = 10, ymin = -10, ymax = 10), col = c("#296682", "#81B1C4"))
 ```
 
