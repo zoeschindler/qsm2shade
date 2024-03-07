@@ -406,6 +406,12 @@ shade_tree <- function(
       polygon_grid <- terra::rasterize(poly_terra, empty_grid, background = 0)
     }
 
+    # delete polygons
+    wood_poly_terra[[idx]] <- terra::vect()
+    if (!is.null(item_pts)) {
+      item_poly_terra[[idx]] <- terra::vect()
+    }
+
     # add radiation data
     # (assumes that radiation is radiation sum until the previous measurement)
     # (converts from radiation resolution (sum) to sun direction resolution (avg))
