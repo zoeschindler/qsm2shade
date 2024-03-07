@@ -468,7 +468,7 @@ shade_summarize <- function(radiation_grid, period = c("hour", "day", "month", "
 
   # check input validity
   if (length(period) > 1 | !any(period %in% c("hour", "day", "month", "year", "total"))) {
-    stop("period must be 'day', 'month', 'year' or 'total")
+    stop("period must be 'hour', day', 'month', 'year' or 'total")
   }
 
   # extract times from raster names
