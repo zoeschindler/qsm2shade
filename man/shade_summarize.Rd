@@ -6,7 +6,7 @@
 \usage{
 shade_summarize(
   radiation_grid,
-  period = c("day", "month", "year", "total"),
+  period = c("hour", "day", "month", "year", "total"),
   na.rm = TRUE
 )
 }
@@ -14,7 +14,7 @@ shade_summarize(
 \item{radiation_grid}{\code{SpatRaster}, stacked set of shade rasters from
 \code{shade_tree()}.}
 
-\item{period}{\code{character}, length of summary period, either
+\item{period}{\code{character}, length of summary period, either \code{"hour"},
 \code{"day"}, \code{"month"}, \code{"year"} or \code{"total"}.}
 }
 \value{

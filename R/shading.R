@@ -395,7 +395,6 @@ shade_tree <- function(
       poly_terra <- rbind(curr_wood, curr_item)
       polygon_grid <- terra::rasterize(poly_terra, empty_grid, field = "shading", fun = "sum", background = 0)
       polygon_grid[polygon_grid > 1] <- 1
-
     } else {
       if (!is.null(item_pts) & alpha == 1) {
         poly_terra <- rbind(
@@ -436,7 +435,7 @@ shade_tree <- function(
 #'
 #' @param radiation_grid \code{SpatRaster}, stacked set of shade rasters from
 #' \code{shade_tree()}.
-#' @param period \code{character}, length of summary period, either
+#' @param period \code{character}, length of summary period, either \code{"hour"},
 #' \code{"day"}, \code{"month"}, \code{"year"} or \code{"total"}.
 #'
 #' @return
@@ -465,10 +464,10 @@ shade_tree <- function(
 #' # plot daily shade
 #' terra::plot(result_daily)
 #' @export
-shade_summarize <- function(radiation_grid, period = c("day", "month", "year", "total"), na.rm = TRUE) {
+shade_summarize <- function(radiation_grid, period = c("hour", "day", "month", "year", "total"), na.rm = TRUE) {
 
   # check input validity
-  if (length(period) > 1 | !any(period %in% c("day", "month", "year", "total"))) {
+  if (length(period) > 1 | !any(period %in% c("hour", "day", "month", "year", "total"))) {
     stop("period must be 'day', 'month', 'year' or 'total")
   }
 
@@ -490,7 +489,7 @@ shade_summarize <- function(radiation_grid, period = c("day", "month", "year", "
   summarized <- terra::rast(summarized)
 
   # rename depending on period
-  format_dict <- list("day" = "%Y-%m-%d", "month" = "%Y-%m", "year" = "%Y")
+  format_dict <- list("hour" = "%Y-%m-%d %H", "day" = "%Y-%m-%d", "month" = "%Y-%m", "year" = "%Y")
   names(summarized) <- format(period_all,  format = format_dict[[period]])
 
   # return summarized data
