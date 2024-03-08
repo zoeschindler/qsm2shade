@@ -206,7 +206,9 @@ shade_items_comp <- compiler::cmpfun(shade_items)
 #'
 #' @param qsm An object of class \code{QSM}.
 #' @param sun_position \code{data.frame}, sunlight direction over the time.
-#' @param radiation \code{data.frame}, diffuse and global radiation over time.
+#' @param radiation \code{data.frame}, diffuse and global radiation over time,
+#' must be formatted as the example from \code{dummy_radiation()}, leave empty
+#' to obtain only light intensity.
 #' @param item_pts \code{matrix}, contains coordinates of simulated items.
 #' @param sequential \code{boolean}, whether sequential (\code{TRUE}) or
 #' parallel processing (\code{FALSE}) should be used.
@@ -279,7 +281,7 @@ shade_items_comp <- compiler::cmpfun(shade_items)
 #' terra::plot(result_daily)
 #' @export
 shade_tree <- function(
-    qsm, sun_position, radiation, resolution = 0.1, item_pts = NULL,
+    qsm, sun_position, radiation = NULL, resolution = 0.1, item_pts = NULL,
     sequential = TRUE, xmin = -20, xmax = 20, ymin = -20, ymax = 20,
     transparency = 0) {
 
@@ -292,31 +294,37 @@ shade_tree <- function(
   sun_direction <- t(sun_position[sun_position$day, 1:3])
   sun_position <- sun_position[order(sun_position$timeframe),]
 
-  # get temporal resolution from sun_position
-  sun_interval <- as.numeric(names(which.max(table(difftime(
-    sun_position$timeframe[2:nrow(sun_position)],
-    sun_position$timeframe[1:(nrow(sun_position) - 1)],
-    units = "secs")))))
+  # TODO: check if there is one timeframe where sun is there
 
-  # get temporal resolution from radiation
-  rad_interval <- as.numeric(names(which.max(table(difftime(
-    radiation$timestamp[2:nrow(radiation)],
-    radiation$timestamp[1:(nrow(radiation) - 1)],
-    units = "secs")))))
+  # check if we have radiation
+  if (!is.null(radiation)) {
 
-  # get factor by which the energy has to be divided
-  if (sun_interval == 0) {
-    rad_factor <- 1
-  } else {
-    rad_factor <- rad_interval / sun_interval
-    rad_factor <- ifelse(is.na(rad_factor), 1, rad_factor)
+    # get temporal resolution from sun_position
+    sun_interval <- as.numeric(names(which.max(table(difftime(
+      sun_position$timeframe[2:nrow(sun_position)],
+      sun_position$timeframe[1:(nrow(sun_position) - 1)],
+      units = "secs")))))
+
+    # get temporal resolution from radiation
+    rad_interval <- as.numeric(names(which.max(table(difftime(
+      radiation$timestamp[2:nrow(radiation)],
+      radiation$timestamp[1:(nrow(radiation) - 1)],
+      units = "secs")))))
+
+    # get factor by which the energy has to be divided
+    if (sun_interval == 0) {
+      rad_factor <- 1
+    } else {
+      rad_factor <- rad_interval / sun_interval
+      rad_factor <- ifelse(is.na(rad_factor), 1, rad_factor)
+    }
+
+    # prepare radiation data
+    radiation$direct_energy_per_area  <- radiation$global_energy_per_area - radiation$diffuse_energy_per_area
+    radiation$direct_energy_per_area  <- radiation$direct_energy_per_area  / rad_factor
+    radiation$diffuse_energy_per_area <- radiation$diffuse_energy_per_area / rad_factor
+    radiation$global_energy_per_area  <- radiation$global_energy_per_area  / rad_factor
   }
-
-  # prepare radiation data
-  radiation$direct_energy_per_area  <- radiation$global_energy_per_area - radiation$diffuse_energy_per_area
-  radiation$direct_energy_per_area  <- radiation$direct_energy_per_area  / rad_factor
-  radiation$diffuse_energy_per_area <- radiation$diffuse_energy_per_area / rad_factor
-  radiation$global_energy_per_area  <- radiation$global_energy_per_area  / rad_factor
 
   # sequential processing
   if (sequential) {
@@ -414,12 +422,21 @@ shade_tree <- function(
       item_poly_terra[[idx]] <- terra::vect()
     }
 
-    # add radiation data
-    # (assumes that radiation is radiation sum until the previous measurement)
-    # (converts from radiation resolution (sum) to sun direction resolution (avg))
-    radiation_curr <- radiation[radiation$timestamp == lubridate::ceiling_date(timestep[idx], paste(rad_interval, "aseconds")),]
-    polygon_grid[polygon_grid != Inf] <- radiation_curr[,"diffuse_energy_per_area"] + radiation_curr[,"direct_energy_per_area"] * transparency ** polygon_grid
-    polygon_grid[polygon_grid == Inf] <- radiation_curr[,"diffuse_energy_per_area"]
+    # check if we have radiation
+    if (!is.null(radiation)) {
+
+      # add radiation data
+      # (assumes that radiation is radiation sum until the previous measurement)
+      # (converts from radiation resolution (sum) to sun direction resolution (avg))
+      radiation_curr <- radiation[radiation$timestamp == lubridate::ceiling_date(timestep[idx], paste(rad_interval, "aseconds")),]
+      polygon_grid[polygon_grid != Inf] <- radiation_curr[,"diffuse_energy_per_area"] + radiation_curr[,"direct_energy_per_area"] * transparency ** polygon_grid
+      polygon_grid[polygon_grid == Inf] <- radiation_curr[,"diffuse_energy_per_area"]
+    } else {
+
+      # only determine shade yes / no
+      polygon_grid[polygon_grid != Inf] <- transparency ** polygon_grid
+      polygon_grid[polygon_grid == Inf] <- 0
+    }
 
     # return raster
     return(polygon_grid)

@@ -7,7 +7,7 @@
 shade_tree(
   qsm,
   sun_position,
-  radiation,
+  radiation = NULL,
   resolution = 0.1,
   item_pts = NULL,
   sequential = TRUE,
@@ -23,7 +23,9 @@ shade_tree(
 
 \item{sun_position}{\code{data.frame}, sunlight direction over the time.}
 
-\item{radiation}{\code{data.frame}, diffuse and global radiation over time.}
+\item{radiation}{\code{data.frame}, diffuse and global radiation over time,
+must be formatted as the example from \code{dummy_radiation()}, leave empty
+to obtain only light intensity.}
 
 \item{resolution}{\code{numeric}, spatial resolution of output rasters.}
 
