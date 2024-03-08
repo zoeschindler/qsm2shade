@@ -213,8 +213,8 @@ shade_items_comp <- compiler::cmpfun(shade_items)
 #' @param resolution \code{numeric}, spatial resolution of output rasters.
 #' @param xmin,xmax,ymin,ymax \code{numeric}, extent of the shading raster in
 #' meters, relative to the stem base.
-#' @param alpha \code{numeric}, alpha of the item shade, 1 = full shade, 0.5 =
-#' half-shade, 0 = no shade.
+#' @param transparency \code{numeric}, transparency of the item shade,
+#' 1 = fully transparent, 0 = fully opaque.
 #'
 #' @return
 #' \code{SpatRaster}, contains radiation around the tree for each
@@ -281,7 +281,7 @@ shade_items_comp <- compiler::cmpfun(shade_items)
 shade_tree <- function(
     qsm, sun_position, radiation, resolution = 0.1, item_pts = NULL,
     sequential = TRUE, xmin = -20, xmax = 20, ymin = -20, ymax = 20,
-    alpha = 1) {
+    transparency = 0) {
 
   # prepare tree data
   tree <- qsm2shade:::prepare_qsm(qsm, keep_all = FALSE)
@@ -387,23 +387,25 @@ shade_tree <- function(
   radiation_grid <- apply(matrix(1:length(timestep)), 1, function(idx) {
 
     # combine & rasterize polygons
-    if (!is.null(item_pts) & alpha < 1) {
+    if (!is.null(item_pts) & transparency > 0) { # opaque wood + transparent leaves
       curr_wood <- terra::vect(wood_poly_terra[[idx]])
       curr_item <- terra::vect(item_poly_terra[[idx]])
-      curr_wood$shading <- 1
-      curr_item$shading <- alpha
+      curr_wood$transparent <- Inf
+      curr_item$transparent <- 1
       poly_terra <- rbind(curr_wood, curr_item)
-      polygon_grid <- terra::rasterize(poly_terra, empty_grid, field = "shading", fun = "sum", background = 0)
-      polygon_grid[polygon_grid > 1] <- 1
+      polygon_grid <- terra::rasterize(poly_terra, empty_grid, field = "transparent", fun = "sum", background = 0, na.rm = TRUE)
+
     } else {
-      if (!is.null(item_pts) & alpha == 1) {
+      if (!is.null(item_pts) & transparency == 0) { # opaque wood + opaque leaves
         poly_terra <- rbind(
           terra::vect(wood_poly_terra[[idx]]),
           terra::vect(item_poly_terra[[idx]]))
-      } else { # only wood
+
+      } else { # opaque wood
         poly_terra <- terra::vect(wood_poly_terra[[idx]])
       }
       polygon_grid <- terra::rasterize(poly_terra, empty_grid, background = 0)
+      polygon_grid[polygon_grid == 1] <- Inf
     }
 
     # delete polygons
@@ -416,8 +418,8 @@ shade_tree <- function(
     # (assumes that radiation is radiation sum until the previous measurement)
     # (converts from radiation resolution (sum) to sun direction resolution (avg))
     radiation_curr <- radiation[radiation$timestamp == lubridate::ceiling_date(timestep[idx], paste(rad_interval, "aseconds")),]
-    polygon_grid <- (1 - polygon_grid) * radiation_curr[,"direct_energy_per_area"] + radiation_curr[,"diffuse_energy_per_area"]
-    polygon_grid[polygon_grid == 0] <- radiation_curr[,"global_energy_per_area"]
+    polygon_grid[polygon_grid != Inf] <- radiation_curr[,"diffuse_energy_per_area"] + radiation_curr[,"direct_energy_per_area"] * transparency ** polygon_grid
+    polygon_grid[polygon_grid == Inf] <- radiation_curr[,"diffuse_energy_per_area"]
 
     # return raster
     return(polygon_grid)
