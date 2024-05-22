@@ -1,4 +1,4 @@
-# qsm2shade: Analyze shadow casting of QSMs
+# qsm2shade: Analyze shadow cast of QSMs
 
 ## Description <img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/logo.png" align="right" width = 290/>
 
@@ -127,6 +127,6 @@ terra::plot(shade_tree(
 
 Author: Zoe Schindler, <a href = "https://www.iww.uni-freiburg.de/">Chair of Forest Growth and Dendroecology</a>, <a href = "https://uni-freiburg.de/">University of Freiburg</a>
 
-**Shading based on:**
+**Shading algorithm based on:**
 Rosskopf E, Morhart C, Nahm M. Modelling Shadow Using 3D Tree Models in High Spatial and Temporal Resolution. Remote Sensing. 2017; 9(7):719. <a href = "https://doi.org/10.3390/rs9070719">doi: 10.3390/rs9070719</a>
 
