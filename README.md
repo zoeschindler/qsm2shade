@@ -1,4 +1,4 @@
-# qsm2shade: Analyze shadow cast of QSMs
+# qsm2shade: Analyze shade cast of QSMs
 
 ## Description <img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/logo.png" align="right" width = 290/>
 
