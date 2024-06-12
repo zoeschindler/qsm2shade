@@ -4,6 +4,20 @@
 
 `qsm2shade` is an R package to calculate the shadow casting of QSMs (quantitative structure models) created in Matlab using <a href = "https://github.com/InverseTampere/TreeQSM">TreeQSM</a>. The package uses `QSM` objects read in using <a href = "https://github.com/zoeschindler/qsm2r">qsm2r</a>. The shade of the tree for one sun position can be plotted using `plot_shade_wood()`. To enable shade estimation of trees carrying leaves or flowers, those can be simulated using  `add_items()`. To plot added items and their shade, use `plot_items()` and `plot_shade_items()`. To simulate the shading of a tree with or without added items over time, the function `shade_tree()` can be used. To increase efficiency, the simulation of the shade can be executed using parallel processing. The used time steps should be one hour or less, the radiation data should be given in hourly steps and the energy unit should correspond to the chosen time steps and raster resolution.
 
+## References
+
+### Code author
+
+<a href = "https://orcid.org/0000-0003-2972-1920">Zoe Schindler</a>, Chair of Forest Growth and Dendroecology, University of Freiburg
+
+### Presented & validated in
+
+Schindler Z, Larysch E, Frey J, Sheppard JP, Obladen N, Kröner K, Seifert T, Morhart C (2024). From dawn to dusk: High resolution tree shading model based on terrestrial LiDAR data. *Remote Sensing*. doi: tba
+
+### Shading algorithm based on
+
+Rosskopf E, Morhart C, Nahm M (2017). Modelling Shadow Using 3D Tree Models in High Spatial and Temporal Resolution. *Remote Sensing 9(7)*:719. <a href = "https://doi.org/10.3390/rs9070719">doi: 10.3390/rs9070719</a>
+
 ## Installation from source
 
 To install the package from github, the package `remotes` is required.
@@ -128,16 +142,3 @@ terra::plot(shade_tree(
 ```
 
 <img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_shade_tree.png" align="center" width = 800/>
-
-## About
-
-Author: <a href = "https://orcid.org/0000-0003-2972-1920">Zoe Schindler</a>, <a href = "https://www.iww.uni-freiburg.de/">Chair of Forest Growth and Dendroecology</a>, <a href = "https://uni-freiburg.de/">University of Freiburg</a>
-
-### Presented & validated in
-
-Schindler Z, Larysch E, Frey J, Sheppard JP, Obladen N, Kröner K, Seifert T, Morhart C (2024). From dawn to dusk: High resolution tree shading model based on terrestrial LiDAR data. *Remote Sensing*. doi: tba
-
-### Shading algorithm based on
-
-Rosskopf E, Morhart C, Nahm M (2017). Modelling Shadow Using 3D Tree Models in High Spatial and Temporal Resolution. *Remote Sensing 9(7)*:719. <a href = "https://doi.org/10.3390/rs9070719">doi: 10.3390/rs9070719</a>
-
