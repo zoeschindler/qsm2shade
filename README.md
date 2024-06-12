@@ -31,6 +31,8 @@ qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
 plot_shade_wood(qsm)
 ```
 
+<img src = "https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_default_tree_shade.PNG" align="center" width = 800/>
+
 ## Example: Plot QSM with shade & leaves
 
 ```R
@@ -63,6 +65,8 @@ plot_shade_wood(qsm)
 # plot shade of items
 plot_shade_items(leaves)
 ```
+
+<img src = "https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_default_tree_shade_leaves.PNG" align="center" width = 800/>
 
 ## Example: Calculate QSM shade for one day
 
@@ -129,6 +133,11 @@ terra::plot(shade_tree(
 
 Author: <a href = "https://orcid.org/0000-0003-2972-1920">Zoe Schindler</a>, <a href = "https://www.iww.uni-freiburg.de/">Chair of Forest Growth and Dendroecology</a>, <a href = "https://uni-freiburg.de/">University of Freiburg</a>
 
-**Shading algorithm based on:**
-Rosskopf E, Morhart C, Nahm M. Modelling Shadow Using 3D Tree Models in High Spatial and Temporal Resolution. Remote Sensing. 2017; 9(7):719. <a href = "https://doi.org/10.3390/rs9070719">doi: 10.3390/rs9070719</a>
+### Presented & validated in
+
+Schindler Z, Larysch E, Frey J, Sheppard JP, Obladen N, Kröner K, Seifert T, Morhart C (2024). From dawn to dusk: High resolution tree shading model based on terrestrial LiDAR data. *Remote Sensing*. doi: tba
+
+### Shading algorithm based on
+
+Rosskopf E, Morhart C, Nahm M (2017). Modelling Shadow Using 3D Tree Models in High Spatial and Temporal Resolution. *Remote Sensing 9(7)*:719. <a href = "https://doi.org/10.3390/rs9070719">doi: 10.3390/rs9070719</a>
 
