@@ -89,6 +89,8 @@ result <- shade_tree(qsm, sun_position, radiation, resolution = 0.1)
 terra::plot(result)
 ```
 
+<img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_shade_over_day.PNG" align="center" width = 800/>
+
 ## Comparison: 3D plot and 2D raster
 
 ```R
@@ -110,7 +112,7 @@ qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
 plot_shade_wood(qsm, sun_dir)
 ```
 
-<img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_plot_shade_wood.png" align="center" width = 600/>
+<img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_plot_shade_wood.png" align="center" width = 800/>
 
 ```R
 # plot shading raster of wood
@@ -121,7 +123,7 @@ terra::plot(shade_tree(
   xmin = -10, xmax = 10, ymin = -10, ymax = 10), col = c("#296682", "#81B1C4"))
 ```
 
-<img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_shade_tree.png" align="center" width = 600/>
+<img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_shade_tree.png" align="center" width = 800/>
 
 ## About
 
