@@ -12,11 +12,11 @@
 
 ### Presented & validated in
 
-Schindler Z, Larysch E, Frey J, Sheppard JP, Obladen N, Kröner K, Seifert T, Morhart C (2024). From dawn to dusk: High resolution tree shading model based on terrestrial LiDAR data. *Remote Sensing*. doi: tba
+Schindler Z, Larysch E, Frey J, Sheppard JP, Obladen N, Kröner K, Seifert T, Morhart C (2024). From dawn to dusk: High resolution tree shading model based on terrestrial LiDAR data. *Remote Sensing 16*(12), 2189. <a href = "https://doi.org/10.3390/rs16122189">doi: 10.3390/rs16122189</a>
 
 ### Shading algorithm based on
 
-Rosskopf E, Morhart C, Nahm M (2017). Modelling Shadow Using 3D Tree Models in High Spatial and Temporal Resolution. *Remote Sensing 9(7)*:719. <a href = "https://doi.org/10.3390/rs9070719">doi: 10.3390/rs9070719</a>
+Rosskopf E, Morhart C, Nahm M (2017). Modelling Shadow Using 3D Tree Models in High Spatial and Temporal Resolution. *Remote Sensing 9*(7), 719. <a href = "https://doi.org/10.3390/rs9070719">doi: 10.3390/rs9070719</a>
 
 ## Installation from source
 
