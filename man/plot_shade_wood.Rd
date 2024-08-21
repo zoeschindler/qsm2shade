@@ -7,7 +7,9 @@
 plot_shade_wood(
   qsm,
   sun_direction = c(0.25, 0.5, -0.75),
-  col = "grey",
+  plane_origin = c(0, 0, 0),
+  plane_norm = c(0, 0, 1),
+  col = "grey40",
   add = TRUE
 )
 }
@@ -17,7 +19,12 @@ plot_shade_wood(
 \item{sun_direction}{\code{numeric}, vector containing the unit vector of the
 sun direction.}
 
-\item{col}{\code{character}, color of the shade}
+\item{plane_origin}{\code{numeric}, \code{xyz}-vector of a point on the
+ground.}
+
+\item{plane_norm}{\code{numeric}, \code{xyz}-vector of the ground normal.}
+
+\item{col}{\code{character}, color of the shade.}
 
 \item{add}{\code{boolean}, add the plot to current active \code{rgl} plot.}
 }
@@ -25,7 +32,9 @@ sun direction.}
 \code{rgl} plot of the shade.
 }
 \description{
-\code{plot_shade_wood} plots shadows of a \code{QSM} object.
+\code{plot_shade_wood} plots shadows of a \code{QSM} object. The ground can
+be specified via a point on the plane and the plane normal. Per default, an
+even ground at the coordinate origin is assumed.
 }
 \examples{
 # load qsm

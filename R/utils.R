@@ -16,6 +16,13 @@ deg2rad <- function(deg) {
 
 ################################################################################
 
+# normalize an vector
+norm_vec <- function(v) {
+  return(v / sqrt(sum(v**2)))
+}
+
+################################################################################
+
 # calculate normalized crossproduct of xyz matrices
 norm_cross <- function(v, w) {
 
@@ -29,6 +36,42 @@ norm_cross <- function(v, w) {
 
   # return normalized result
   return(cross / sqrt(cross[,1]**2 + cross[,2]**2 + cross[,3]**2))
+}
+
+################################################################################
+
+# calculate crossproduct of xyz matrices
+simple_cross <- function(v, w) {
+
+  # object for storage
+  cross <- matrix(NA, nrow = nrow(v), ncol = 3)
+
+  # cross product
+  cross[,1] <- v[,2] * w[,3] - v[,3] * w[,2]
+  cross[,2] <- v[,3] * w[,1] - v[,1] * w[,3]
+  cross[,3] <- v[,1] * w[,2] - v[,2] * w[,1]
+
+  # return result
+  return(cross)
+}
+
+################################################################################
+
+# calculate scalar product of xyz matrices
+scalar_prod <- function(v, w) {
+
+  # object for storage
+  scalar <- matrix(NA, nrow = nrow(v), ncol = 3)
+
+  # return scalar product
+  return(v[,1] * w[,1] + v[,2] * w[,2] + v[,3] * w[,3])
+}
+
+################################################################################
+
+# convert first list element with a geom matrix to polygons
+list_polygonize <- function(element) {
+  return(terra::vect(element[[1]][,-4], type = "polygons"))
 }
 
 ################################################################################
@@ -91,6 +134,120 @@ prepare_qsm <- function(qsm, keep_all = FALSE) {
 
   # return matrix
   return(cylinder)
+}
+
+################################################################################
+
+#' Extract stem coordinates from a point cloud of a single tree
+#'
+#' @description
+#' \code{las_tree_location} extracts the coordinates of the stem of a single
+#' tree at a specified height range. Assumes that the input \code{LAS} object
+#' contains only one tree. The heights refer to the height over the ground.
+#'
+#' @param las An object of class \code{LAS}.
+#' @param lwr_height \code{numeric}, lower height threshold in meters.
+#' @param upr_height \code{numeric}, upper height threshold in meters.
+#'
+#' @return
+#' A \code{numeric} containing the \code{xy}-coordinates of the stem center.
+#'
+#' @seealso \code{\link{las_tree_location}}, \code{\link{plot_ground}}
+#'
+#' @examples
+#' # load las data
+#' file_path <- system.file("extdata", "walnut_with_ground.las", package="qsm2shade")
+#' las <- lidR::readLAS(file_path)
+#'
+#' # get stem location
+#' location <- las_tree_location(las)
+#' @export
+las_tree_location <- function(las, lwr_height = 1.2, upr_height = 1.4) {
+
+  # normalize point cloud
+  las <- lidR::classify_ground(las, csf())
+  las <- lidR::normalize_height(las, tin())
+
+  # clip circle from las file
+  las <- lidR::filter_poi(las, Z >= lwr_height & Z <= upr_height)
+
+  # abort if there is no ground
+  if (lidR::is.empty(las)) stop("no points at specified height")
+
+  # extract stem location
+  location <- c()
+  location[1] <- median(las$X)
+  location[2] <- median(las$Y)
+
+  # return stem location
+  return(location)
+}
+
+################################################################################
+
+#' Extract plane normal of the ground from a point cloud
+#'
+#' @description
+#' \code{las_ground_normal} extracts the plane normal of the ground at a
+#' specified area. The area is specified via \code{xy}-coordinates and a radius.
+#'
+#' @param las An object of class \code{LAS}.
+#' @param location \code{numeric}, \code{xy}-coordinates.
+#' @param radius \code{numeric}, radius in meters.
+#'
+#' @return
+#' A \code{numeric} containing the \code{xyz}-vector of the ground normal.
+#'
+#' @seealso \code{\link{plot_ground}}, \code{\link{las_ground_normal}}
+#'
+#' @examples
+#' # load las data
+#' file_path <- system.file("extdata", "walnut_with_ground.las", package="qsm2shade")
+#' las <- lidR::readLAS(file_path)
+#'
+#' # get stem location
+#' location <- las_tree_location(las)
+#'
+#' # calculate ground normal
+#' ground_normal <- las_ground_normal(las, location)
+#'
+#' # load qsm
+#' file_path <- system.file("extdata", "walnut.mat", package="qsm2shade")
+#' qsm <- qsm2r::readQSM(file_path)
+#'
+#' # shift qsm to origin
+#' qsm <- qsm2r::set_location(qsm, c(0,0,0))
+#'
+#' # plot qsm and ground
+#' qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
+#' plot_ground(plane_origin = c(0,0,0), plane_norm = ground_normal, radius = 4, add = TRUE)
+#' rgl::bg3d("white"); rgl::axes3d()
+#'
+#' # plot las
+#' lidR::plot(las)
+#' plot_ground(plane_origin = c(location[1]-min(las$X), location[2]-min(las$Y), min(las$Z)),
+#'             plane_norm = ground_normal, radius = 4, add = TRUE)
+#' rgl::bg3d("white"); rgl::axes3d()
+#' @export
+las_ground_normal <- function(las, location = c(0,0), radius = 3) {
+
+  # clip circle from las file
+  las <- lidR::clip_circle(las, xcenter = location[1], ycenter = location[2], radius = radius)
+
+  # extract the ground
+  las <- lidR::classify_ground(las, csf())
+  las <- lidR::filter_ground(las)
+
+  # abort if there is no ground
+  if (lidR::is.empty(las)) stop("no ground found")
+
+  # extract ground plane
+  ground_points <- cbind(las$X, las$Y, las$Z)
+  pca <- prcomp(ground_points, center = TRUE, scale. = FALSE)
+  p_normal <- pca$rotation[,3]
+
+  # return normal of the ground
+  return(p_normal)
 }
 
 ################################################################################

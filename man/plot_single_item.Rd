@@ -4,7 +4,7 @@
 \alias{plot_single_item}
 \title{Plot a single item}
 \usage{
-plot_single_item(item_poly, col = "pink2")
+plot_single_item(item_poly, col = "#F4ACB7")
 }
 \arguments{
 \item{item_poly}{\code{matrix} or \code{list}, item to be simulated,

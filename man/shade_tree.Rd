@@ -15,7 +15,9 @@ shade_tree(
   xmax = 20,
   ymin = -20,
   ymax = 20,
-  transparency = 0
+  transparency = 0,
+  plane_origin = c(0, 0, 0),
+  plane_norm = c(0, 0, 1)
 )
 }
 \arguments{
@@ -39,6 +41,11 @@ meters, relative to the stem base.}
 
 \item{transparency}{\code{numeric}, transparency of the item shade,
 1 = fully transparent, 0 = fully opaque.}
+
+\item{plane_origin}{\code{numeric}, \code{xyz}-vector of a point on the
+ground.}
+
+\item{plane_norm}{\code{numeric}, \code{xyz}-vector of the ground normal.}
 }
 \value{
 \code{SpatRaster}, contains radiation around the tree for each
@@ -47,7 +54,14 @@ meters, relative to the stem base.}
 layers with the timestamp as names.
 }
 \description{
-\code{shade_tree}.
+\code{shade_tree} calculates the shade cast by a tree based on given sun
+positions. The radiation within this time frame may be specified, otherwise,
+shade is coded as 0 and light is coded as 1. The function can include the
+shade of modeled items (leaves, flowers) if provided. The processing may be
+done sequentially or in parallel. For the output rasters, the resolution and
+extent is required. Further, the transparency of leaves may be configured.
+The ground can be specified via a point on the plane and the plane normal.
+Per default, an even ground at the origin is assumed.
 }
 \details{
 The parameter \code{sun_position} determines for which time steps the shade

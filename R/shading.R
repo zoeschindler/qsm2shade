@@ -86,7 +86,7 @@ sun_movement <- function(timeframe, latitude, longitude, timezone = 0) {
 ################################################################################
 
 # calculate wood shadow polygons
-shade_wood <- function(sun_direction, tree) {
+shade_wood <- function(sun_direction, tree, plane_origin, plane_norm) {
 
   # get cylinder vertices
   # https://www.nagwa.com/en/explainers/616184792816/
@@ -122,36 +122,45 @@ shade_wood <- function(sun_direction, tree) {
   py_cols <- endsWith(cyl_cols, "y")
   pz_cols <- endsWith(cyl_cols, "z")
 
-  # prepare storage
-  projected <- matrix(NA, nrow = nrow(tree), ncol = c(2 * 8)) # for 8 x-y coordinates
-
-  # projection
-  dist <- -cyl_pts[,pz_cols] / sun_direction[3]
+  # calculate intersections between ground and light
+  # line:       point + t * sun
+  # plane:      normal * (point - origin) = 0
+  # insert:     normal * (point + t * sun - origin) = 0
+  # rearrange:  t = -(normal * (point - origin))/(normal * sun)
+  times_sun <- (
+    plane_norm[1] * (cyl_pts[,px_cols] - plane_origin[1]) +
+    plane_norm[2] * (cyl_pts[,py_cols] - plane_origin[2]) +
+    plane_norm[3] * (cyl_pts[,pz_cols] - plane_origin[3])) / c(plane_norm %*% sun_direction)
   projected <- matrix(c(
     1:nrow(cyl_pts),
-    cyl_pts[,px_cols] + dist * sun_direction[1],
-    cyl_pts[,py_cols] + dist * sun_direction[2]),
-    ncol = 1 + sum(px_cols) * 2)
-  colnames(projected) <- c("id", cyl_cols[px_cols], cyl_cols[py_cols])
+    cyl_pts[,px_cols] - times_sun * sun_direction[1],
+    cyl_pts[,py_cols] - times_sun * sun_direction[2],
+    cyl_pts[,pz_cols] - times_sun * sun_direction[3]),
+    ncol = 1 + sum(px_cols) * 3)
+  colnames(projected) <- c("id", cyl_cols[px_cols], cyl_cols[py_cols], cyl_cols[pz_cols])
 
   # get columns with coordinates
   all_cols <- colnames(projected)
   x_cols <- endsWith(all_cols, "x")
   y_cols <- endsWith(all_cols, "y")
+  z_cols <- endsWith(all_cols, "z")
 
   # get coordinates of convex hull
-  chull_list <- lapply(1:nrow(projected), function(idx) {
+  conv_hulls <- lapply(1:nrow(projected), function(idx) {
     cp <- cbind(as.numeric(projected[idx, x_cols]),
-                as.numeric(projected[idx, y_cols]))
+                as.numeric(projected[idx, y_cols]),
+                as.numeric(projected[idx, z_cols]))
     hullIdx <- chull(cp)
     cbind(id = idx, cp[c(hullIdx, hullIdx[1]),])
   })
+  conv_hulls <- do.call(rbind, conv_hulls)
+  colnames(conv_hulls) <- c("id", "x", "y", "z")
 
-  # convert to polygons
-  wood_poly_terra <- do.call(rbind, chull_list) |> terra::vect("polygons")
+  # set z to exactly zero, if ground is flat
+  if (all(plane_origin == c(0,0,0)) & all(plane_norm == c(0,0,1))) conv_hulls[,"z"] <- 0
 
   # return polygons
-  return(terra::wrap(wood_poly_terra))
+  return(list(conv_hulls))
 }
 
 # compile function to make it faster
@@ -160,7 +169,7 @@ shade_wood_comp <- compiler::cmpfun(shade_wood)
 ################################################################################
 
 # calculate item shadow polygons
-shade_items <- function(sun_direction, item_pts) {
+shade_items <- function(sun_direction, item_pts, plane_origin, plane_norm) {
 
   # get coordinate cols
   poly_cols <- colnames(item_pts)
@@ -168,30 +177,38 @@ shade_items <- function(sun_direction, item_pts) {
   py_cols <- endsWith(poly_cols, "y")
   pz_cols <- endsWith(poly_cols, "z")
 
-  # projection
-  dist <- -item_pts[,pz_cols] / sun_direction[3]
+  # calculate intersections between ground and light
+  # line:       point + t * sun
+  # plane:      normal * (point - origin) = 0
+  # insert:     normal * (point + t * sun - origin) = 0
+  # rearrange:  t = -(normal * (point - origin))/(normal * sun)
+  times_sun <- (
+    plane_norm[1] * (item_pts[,px_cols] - plane_origin[1]) +
+    plane_norm[2] * (item_pts[,py_cols] - plane_origin[2]) +
+    plane_norm[3] * (item_pts[,pz_cols] - plane_origin[3])) / c(plane_norm %*% sun_direction)
   projected <- matrix(c(
     1:nrow(item_pts),
-    item_pts[,px_cols] + dist * sun_direction[1],
-    item_pts[,py_cols] + dist * sun_direction[2]),
-    ncol = 1 + sum(px_cols) * 2)
-  colnames(projected) <- c("id", poly_cols[px_cols], poly_cols[py_cols])
+    item_pts[,px_cols] - times_sun * sun_direction[1],
+    item_pts[,py_cols] - times_sun * sun_direction[2],
+    item_pts[,pz_cols] - times_sun * sun_direction[3]),
+    ncol = 1 + sum(px_cols) * 3)
+  colnames(projected) <- c("id", poly_cols[px_cols], poly_cols[py_cols], poly_cols[pz_cols])
 
   # convert to geom format
   item_dt_x <- data.table::melt(data.table::data.table(projected[,c("id", poly_cols[px_cols])]), id.vars = c("id"))
   item_dt_y <- data.table::melt(data.table::data.table(projected[,c("id", poly_cols[py_cols])]), id.vars = c("id"))
+  item_dt_z <- data.table::melt(data.table::data.table(projected[,c("id", poly_cols[pz_cols])]), id.vars = c("id"))
   item_dt_x$pos <- as.numeric(gsub("\\D", "", item_dt_x$variable))
   item_dt_y$pos <- as.numeric(gsub("\\D", "", item_dt_y$variable))
-  item_dt_x$variable <- item_dt_y$variable <- NULL
-  item_dt <- merge(item_dt_x, item_dt_y, by = c("id", "pos"))
+  item_dt_z$pos <- as.numeric(gsub("\\D", "", item_dt_z$variable))
+  item_dt_x$variable <- item_dt_y$variable <- item_dt_z$variable <- NULL
+  item_dt <- merge(merge(item_dt_x, item_dt_y, by = c("id", "pos")), item_dt_z, by = c("id", "pos"))
   data.table::setorder(item_dt, id, pos)
   item_dt$pos <- NULL
-
-  # convert to polygons
-  item_poly_terra <- terra::vect(as.matrix(item_dt), "polygons")
+  names(item_dt) <- c("id", "x", "y", "z")
 
   # return polygons
-  return(terra::wrap(item_poly_terra))
+  return(list(as.matrix(item_dt)))
 }
 
 # compile function to make it faster
@@ -202,7 +219,14 @@ shade_items_comp <- compiler::cmpfun(shade_items)
 #' Calculate shade of a QSM
 #'
 #' @description
-#' \code{shade_tree}.
+#' \code{shade_tree} calculates the shade cast by a tree based on given sun
+#' positions. The radiation within this time frame may be specified, otherwise,
+#' shade is coded as 0 and light is coded as 1. The function can include the
+#' shade of modeled items (leaves, flowers) if provided. The processing may be
+#' done sequentially or in parallel. For the output rasters, the resolution and
+#' extent is required. Further, the transparency of leaves may be configured.
+#' The ground can be specified via a point on the plane and the plane normal.
+#' Per default, an even ground at the origin is assumed.
 #'
 #' @param qsm An object of class \code{QSM}.
 #' @param sun_position \code{data.frame}, sunlight direction over the time.
@@ -217,6 +241,9 @@ shade_items_comp <- compiler::cmpfun(shade_items)
 #' meters, relative to the stem base.
 #' @param transparency \code{numeric}, transparency of the item shade,
 #' 1 = fully transparent, 0 = fully opaque.
+#' @param plane_origin \code{numeric}, \code{xyz}-vector of a point on the
+#' ground.
+#' @param plane_norm \code{numeric}, \code{xyz}-vector of the ground normal.
 #'
 #' @return
 #' \code{SpatRaster}, contains radiation around the tree for each
@@ -283,7 +310,7 @@ shade_items_comp <- compiler::cmpfun(shade_items)
 shade_tree <- function(
     qsm, sun_position, radiation = NULL, resolution = 0.1, item_pts = NULL,
     sequential = TRUE, xmin = -20, xmax = 20, ymin = -20, ymax = 20,
-    transparency = 0) {
+    transparency = 0, plane_origin = c(0,0,0), plane_norm = c(0,0,1)) {
 
   # prepare tree data
   tree <- qsm2shade:::prepare_qsm(qsm, keep_all = FALSE)
@@ -294,7 +321,8 @@ shade_tree <- function(
   sun_direction <- t(sun_position[sun_position$day, 1:3])
   sun_position <- sun_position[order(sun_position$timeframe),]
 
-  # TODO: check if there is one timeframe where sun is there
+  # check if there is one timeframe where sun is there
+  if (ncol(sun_position) == 0) stop("there is no sun during the selected time") # check if this works
 
   # check if we have radiation
   if (!is.null(radiation)) {
@@ -331,12 +359,16 @@ shade_tree <- function(
 
     # calculate wood shadows
     message("... creating wood shadows")
-    wood_poly_terra <- apply(sun_direction, 2, qsm2shade:::shade_wood_comp, tree = tree)
+    wood_poly_terra <- apply(
+      sun_direction, 2, qsm2shade:::shade_wood_comp, tree = tree,
+      plane_origin = plane_origin, plane_norm = plane_norm) |> lapply(qsm2shade:::list_polygonize)
 
     # calculate item shadows
     if (!is.null(item_pts)) {
       message("... creating item shadows")
-      item_poly_terra <- apply(sun_direction, 2, qsm2shade:::shade_items_comp, item_pts = item_pts)
+      item_poly_terra <- apply(
+        sun_direction, 2, qsm2shade:::shade_items_comp, item_pts = item_pts,
+        plane_origin = plane_origin, plane_norm = plane_norm) |> lapply(qsm2shade:::list_polygonize)
 
     } else {
       item_poly_terra <- NULL
@@ -350,13 +382,11 @@ shade_tree <- function(
     cl <- parallel::makeCluster(numCores, type = "PSOCK")
 
     # necessary packages
-    # TODO: shorten, old: list("terra", "raster", "sp", "data.table")
-    packages_cl <- list("terra", "data.table")
+    packages_cl <- list("data.table")
 
     # export objects to cores
-    # TODO: shorten
     parallel::clusterExport(cl, list(
-      "packages_cl", "tree", "item_pts", "sun_direction", "norm_cross"),
+      "packages_cl", "tree", "item_pts", "sun_direction", "norm_cross", "plane_origin", "plane_norm"),
       envir = environment())
 
     # execute on all cores
@@ -368,12 +398,16 @@ shade_tree <- function(
 
     # calculate wood shadows
     message("... creating wood shadows")
-    wood_poly_terra <- parallel::parApply(cl, sun_direction, 2, shade_wood_comp, tree = tree)
+    wood_poly_terra <- parallel::parApply(
+      cl, sun_direction, 2, qsm2shade:::shade_wood_comp, tree = tree,
+      plane_origin = plane_origin, plane_norm = plane_norm) |> lapply(qsm2shade:::list_polygonize)
 
     # calculate item shadows
     if (!is.null(item_pts)) {
       message("... creating item shadows")
-      item_poly_terra <- parallel::parApply(cl, sun_direction, 2, shade_items_comp, item_pts = item_pts)
+      item_poly_terra <- parallel::parApply(
+        cl, sun_direction, 2, qsm2shade:::shade_items_comp, item_pts = item_pts,
+        plane_origin = plane_origin, plane_norm = plane_norm) |> lapply(qsm2shade:::list_polygonize)
     } else {
       item_poly_terra <- NULL
     }
@@ -396,8 +430,8 @@ shade_tree <- function(
 
     # combine & rasterize polygons
     if (!is.null(item_pts) & transparency > 0) { # opaque wood + transparent leaves
-      curr_wood <- terra::vect(wood_poly_terra[[idx]])
-      curr_item <- terra::vect(item_poly_terra[[idx]])
+      curr_wood <- wood_poly_terra[[idx]]
+      curr_item <- item_poly_terra[[idx]]
       curr_wood$transparent <- Inf
       curr_item$transparent <- 1
       poly_terra <- rbind(curr_wood, curr_item)
@@ -406,11 +440,11 @@ shade_tree <- function(
     } else {
       if (!is.null(item_pts) & transparency == 0) { # opaque wood + opaque leaves
         poly_terra <- rbind(
-          terra::vect(wood_poly_terra[[idx]]),
-          terra::vect(item_poly_terra[[idx]]))
+          wood_poly_terra[[idx]],
+          item_poly_terra[[idx]])
 
       } else { # opaque wood
-        poly_terra <- terra::vect(wood_poly_terra[[idx]])
+        poly_terra <- wood_poly_terra[[idx]]
       }
       polygon_grid <- terra::rasterize(poly_terra, empty_grid, background = 0)
       polygon_grid[polygon_grid == 1] <- Inf
@@ -451,6 +485,8 @@ shade_tree <- function(
   # return result
   return(radiation_grid)
 }
+
+################################################################################
 
 #' Summarize shade per period
 #'
