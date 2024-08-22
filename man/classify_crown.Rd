@@ -38,7 +38,7 @@ horizontal section.
 }
 \examples{
 # load qsm
-file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
+file_path <- system.file("extdata", "walnut.mat", package="qsm2shade")
 qsm <- qsm2r::readQSM(file_path)
 
 # classify crown cylinders

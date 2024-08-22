@@ -31,7 +31,7 @@ remotes::install_github("zoeschindler/qsm2shade")
 
 ```R
 # load qsm
-file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
+file_path <- system.file("extdata", "walnut.mat", package="qsm2shade")
 qsm <- qsm2r::readQSM(file_path)
 
 # shift qsm to origin
@@ -51,7 +51,7 @@ plot_shade_wood(qsm)
 
 ```R
 # load qsm
-file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
+file_path <- system.file("extdata", "walnut.mat", package="qsm2shade")
 qsm <- qsm2r::readQSM(file_path)
 
 # shift qsm to origin
@@ -86,7 +86,7 @@ plot_shade_items(leaves)
 
 ```R
 # load qsm
-file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
+file_path <- system.file("extdata", "walnut.mat", package="qsm2shade")
 qsm <- qsm2r::readQSM(file_path)
 
 # shift qsm to origin
@@ -113,32 +113,27 @@ terra::plot(result)
 
 ```R
 # load qsm
-file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
+file_path <- system.file("extdata", "walnut.mat", package="qsm2shade")
 qsm <- qsm2r::readQSM(file_path)
 
 # shift qsm to origin
 # (shade is always projected to z = 0)
 qsm <- qsm2r::set_location(qsm, c(0,0,0))
 
-# dummy sun direction
-sun_dir <- c(0.25, -0.5, -0.75)
-
-# plot qsm
-qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
+# sun direction
+sun_position <- sun_movement(ISOdate(2020, 03, 22, 12, 0), latitude = 48.07, longitude = 7.60)
 
 # plot shade of wood
-plot_shade_wood(qsm, sun_dir)
+plot_shade_wood(qsm, as.numeric(sun_position[,1:3]), col = "grey60", add = FALSE)
+
+# add axes
+rgl::axis3d("x"); rgl::axis3d("y")
+
+# plot shading raster of wood
+terra::plot(shade_tree(qsm, sun_position, resolution = 0.01,
+            xmin = -4, xmax = 6, ymin = -1, ymax = 8), col = c("#296682", "#81B1C4"))
 ```
 
 <img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_plot_shade_wood.png" align="center" width = 800/>
-
-```R
-# plot shading raster of wood
-sun_position <- sun_movement(ISOdate(2020, 03, 22, 12, 0), latitude = 48.07, longitude = 7.60)
-sun_position[,1:3] <- sun_dir
-terra::plot(shade_tree(
-  qsm, sun_position, dummy_radiation(), resolution = 0.01,
-  xmin = -10, xmax = 10, ymin = -10, ymax = 10), col = c("#296682", "#81B1C4"))
-```
 
 <img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_shade_tree.png" align="center" width = 800/>

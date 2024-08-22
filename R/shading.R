@@ -94,19 +94,19 @@ shade_wood <- function(sun_direction, tree, plane_origin, plane_norm) {
   bot_m <-  tree[,c("end_X", "end_Y", "end_Z")]
   sun_m <- matrix(sun_direction, ncol = 3, nrow = nrow(tree), byrow = TRUE)
   #
-  cross <- norm_cross(sun_m, top_m - bot_m)
+  cross <- qsm2shade:::norm_cross(sun_m, top_m - bot_m)
   q1 <- top_m + tree[,c("radius")] * cross
   q2 <- top_m - tree[,c("radius")] * cross
   #
-  cross <- norm_cross(top_m - bot_m, q1 - q2)
+  cross <- qsm2shade:::norm_cross(top_m - bot_m, q1 - q2)
   q3 <- top_m + tree[,c("radius")] * cross
   q4 <- top_m - tree[,c("radius")] * cross
   #
-  cross <- norm_cross(sun_m, bot_m - top_m)
+  cross <- qsm2shade:::norm_cross(sun_m, bot_m - top_m)
   q5 <- bot_m + tree[,c("radius")] * cross
   q6 <- bot_m - tree[,c("radius")] * cross
   #
-  cross <- norm_cross(bot_m - top_m, q5 - q6)
+  cross <- qsm2shade:::norm_cross(bot_m - top_m, q5 - q6)
   q7 <- bot_m + tree[,c("radius")] * cross
   q8 <- bot_m - tree[,c("radius")] * cross
 
@@ -129,8 +129,8 @@ shade_wood <- function(sun_direction, tree, plane_origin, plane_norm) {
   # rearrange:  t = -(normal * (point - origin))/(normal * sun)
   times_sun <- (
     plane_norm[1] * (cyl_pts[,px_cols] - plane_origin[1]) +
-    plane_norm[2] * (cyl_pts[,py_cols] - plane_origin[2]) +
-    plane_norm[3] * (cyl_pts[,pz_cols] - plane_origin[3])) / c(plane_norm %*% sun_direction)
+      plane_norm[2] * (cyl_pts[,py_cols] - plane_origin[2]) +
+      plane_norm[3] * (cyl_pts[,pz_cols] - plane_origin[3])) / c(plane_norm %*% sun_direction)
   projected <- matrix(c(
     1:nrow(cyl_pts),
     cyl_pts[,px_cols] - times_sun * sun_direction[1],
@@ -184,8 +184,8 @@ shade_items <- function(sun_direction, item_pts, plane_origin, plane_norm) {
   # rearrange:  t = -(normal * (point - origin))/(normal * sun)
   times_sun <- (
     plane_norm[1] * (item_pts[,px_cols] - plane_origin[1]) +
-    plane_norm[2] * (item_pts[,py_cols] - plane_origin[2]) +
-    plane_norm[3] * (item_pts[,pz_cols] - plane_origin[3])) / c(plane_norm %*% sun_direction)
+      plane_norm[2] * (item_pts[,py_cols] - plane_origin[2]) +
+      plane_norm[3] * (item_pts[,pz_cols] - plane_origin[3])) / c(plane_norm %*% sun_direction)
   projected <- matrix(c(
     1:nrow(item_pts),
     item_pts[,px_cols] - times_sun * sun_direction[1],
@@ -265,7 +265,7 @@ shade_items_comp <- compiler::cmpfun(shade_items)
 #'
 #' @examples
 #' # load qsm
-#' file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
+#' file_path <- system.file("extdata", "walnut.mat", package="qsm2shade")
 #' qsm <- qsm2r::readQSM(file_path)
 #'
 #' # shift qsm to origin
@@ -507,7 +507,7 @@ shade_tree <- function(
 #'
 #' @examples
 #' # load qsm
-#' file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
+#' file_path <- system.file("extdata", "walnut.mat", package="qsm2shade")
 #' qsm <- qsm2r::readQSM(file_path)
 #'
 #' # get son position at different times

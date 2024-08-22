@@ -216,6 +216,10 @@ plot_shade_wood <- function(qsm, sun_direction = c(0.25, 0.5, -0.75),
   # prepare qsm
   tree <- prepare_qsm(qsm, keep_all = FALSE)
 
+  # prepare sun direction
+  # https://doi.org/10.1080/713811744 (N- & S+)
+  sun_direction[2] <- sun_direction[2] * (-1)
+
   # get shadows
   shade_wood <- shade_wood(sun_direction = sun_direction, tree = tree, plane_origin = plane_origin, plane_norm = plane_norm)
 
@@ -249,7 +253,7 @@ plot_shade_wood <- function(qsm, sun_direction = c(0.25, 0.5, -0.75),
 #'
 #' @examples
 #' # load qsm
-#' file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
+#' file_path <- system.file("extdata", "walnut.mat", package="qsm2shade")
 #' qsm <- qsm2r::readQSM(file_path)
 #'
 #' # shift qsm to origin
@@ -307,6 +311,10 @@ plot_shade_items <- function(item_pts, sun_direction = c(0.25, 0.5, -0.75),
   # remove items with NAs
   item_pts <- na.omit(item_pts)
 
+  # prepare sun direction
+  # https://doi.org/10.1080/713811744 (N- & S+)
+  sun_direction[2] <- sun_direction[2] * (-1)
+
   # get shadows
   shade_items <- shade_items(sun_direction = sun_direction, item_pts = item_pts, plane_origin = plane_origin, plane_norm = plane_norm)
 
@@ -342,7 +350,7 @@ plot_shade_items <- function(item_pts, sun_direction = c(0.25, 0.5, -0.75),
 #'
 #' @examples
 #' # load qsm
-#' file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
+#' file_path <- system.file("extdata", "walnut.mat", package="qsm2shade")
 #' qsm <- qsm2r::readQSM(file_path)
 #'
 #' # shift qsm to origin
