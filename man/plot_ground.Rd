@@ -11,7 +11,8 @@ plot_ground(
   n_dir = 30L,
   z_offset = -0.005,
   col = "#B6CC8F",
-  add = TRUE
+  add = TRUE,
+  lit = TRUE
 )
 }
 \arguments{

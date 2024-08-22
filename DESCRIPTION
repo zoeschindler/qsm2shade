@@ -22,5 +22,5 @@ Imports:
 	rgl,
 	lidR
 URL: https://github.com/zoeschindler/qsm2shade
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 TreeQSMNote: 2.4.1

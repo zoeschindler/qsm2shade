@@ -4,7 +4,7 @@
 \alias{plot_items}
 \title{Plot simulated items}
 \usage{
-plot_items(item_pts, col, add = TRUE)
+plot_items(item_pts, col, add = TRUE, lit = TRUE)
 }
 \arguments{
 \item{item_pts}{\code{matrix}, contains coordinates of simulated items.}
@@ -12,6 +12,8 @@ plot_items(item_pts, col, add = TRUE)
 \item{col}{\code{character}, color of the items.}
 
 \item{add}{\code{boolean}, add the plot to current active \code{rgl} plot.}
+
+\item{lit}{\code{boolean}, whether the items should be lit.}
 }
 \value{
 \code{rgl} plot of all items.
@@ -21,7 +23,7 @@ plot_items(item_pts, col, add = TRUE)
 }
 \examples{
 # load qsm
-file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
+file_path <- system.file("extdata", "walnut.mat", package="qsm2shade")
 qsm <- qsm2r::readQSM(file_path)
 
 # create dummy item regression

@@ -138,6 +138,88 @@ prepare_qsm <- function(qsm, keep_all = FALSE) {
 
 ################################################################################
 
+#' Extract stem coordinates from polyons
+#'
+#' @description
+#' \code{poly_tree_location} extracts the coordinates of the stem of a single
+#' tree at a specified height range. Assumes that the input polygons describe
+#' only one tree. The heights refer to the height over the ground.
+#'
+#' @param poly contains matrix with IDs and coordinates of wood polygons.
+#' @param lwr_height \code{numeric}, lower height threshold in meters.
+#' @param upr_height \code{numeric}, upper height threshold in meters.
+#'
+#' @return
+#' A \code{numeric} containing the \code{xyz}-coordinates of the stem center.
+#'
+#' @seealso \code{\link{plot_ground}}
+#'
+#' @examples
+#' # load wood polygons
+#' file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
+#' poly_wood <- read.table(file_path, header = T
+#'
+#' # get stem location
+#' location <- las_tree_location(poly_wood)
+#' @export
+poly_tree_location <- function(poly, lwr_height = 0.3, upr_height = 0.6) {
+
+  # get the id of every polygon within the height section
+  min_z <- min(poly[,4])
+  id_within <- unique(poly[poly[,4] >= min_z + lwr_height & poly[,4] <= min_z + upr_height, 1])
+
+  # get the x + y values of the polygon vertices
+  x_vals <- poly[poly[,1] %in% id_within, 2]
+  y_vals <- poly[poly[,1] %in% id_within, 3]
+
+  # calculate center of the 95% quantile
+  x_center <- sum(quantile(x_vals, p = c(0.025, 0.975)))/2
+  y_center <- sum(quantile(y_vals, p = c(0.025, 0.975)))/2
+
+  # return center
+  return(c("x" = x_center, "y" = y_center, "z" = min_z))
+}
+
+################################################################################
+
+#' Move polygons to coordinates
+#'
+#' @description
+#' \code{poly_shift} shifts the coordinates of polygons by specified offsets in
+#' the x, y and z direction.
+#'
+#' @param poly contains matrix with IDs and coordinates of polygons.
+#' @param offset \code{numeric}, contains \code{xyz}-coordinates of the require shift.
+#'
+#' @return
+#' A matrix with the IDs and coordinates of the shifted polygons.
+#'
+#' @seealso \code{\link{poly_tree_location}}
+#'
+#' @examples
+#' # load wood polygons
+#' file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
+#' poly_wood <- read.table(file_path, header = T
+#'
+#' # get stem location
+#' location <- las_tree_location(poly_wood)
+#'
+#' # shift stem location to 0,0,0
+#' poly_wood <- poly_shift(poly_wood, location)
+#' @export
+poly_shift <- function(poly, offset = c(0,0,0)) {
+
+  # shift coordinates one by one
+  poly[,2] <- poly[,2] - offset[1]
+  poly[,3] <- poly[,3] - offset[2]
+  poly[,4] <- poly[,4] - offset[3]
+
+  # return shifted polygons
+  return(poly)
+}
+
+################################################################################
+
 #' Extract stem coordinates from a point cloud of a single tree
 #'
 #' @description

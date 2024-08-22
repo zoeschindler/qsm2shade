@@ -71,6 +71,7 @@ plot_single_item <- function(item_poly, col = "#F4ACB7") {
 #' @param item_pts \code{matrix}, contains coordinates of simulated items.
 #' @param col \code{character}, color of the items.
 #' @param add \code{boolean}, add the plot to current active \code{rgl} plot.
+#' @param lit \code{boolean}, whether the items should be lit.
 #'
 #' @return
 #' \code{rgl} plot of all items.
@@ -79,7 +80,7 @@ plot_single_item <- function(item_poly, col = "#F4ACB7") {
 #'
 #' @examples
 #' # load qsm
-#' file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
+#' file_path <- system.file("extdata", "walnut.mat", package="qsm2shade")
 #' qsm <- qsm2r::readQSM(file_path)
 #'
 #' # create dummy item regression
@@ -111,7 +112,7 @@ plot_single_item <- function(item_poly, col = "#F4ACB7") {
 #' # plot items
 #' plot_items(leaves, col = "darkolivegreen3")
 #' @export
-plot_items <- function(item_pts, col, add = TRUE) {
+plot_items <- function(item_pts, col, add = TRUE, lit = TRUE) {
 
   # remove items with NAs
   item_pts <- na.omit(item_pts)
@@ -146,7 +147,66 @@ plot_items <- function(item_pts, col, add = TRUE) {
     poly_i$material$color <- col
     poly_i
   })
-  rgl::shade3d(rgl::shapelist3d(item_rgl, plot = FALSE), lit = TRUE)
+  rgl::shade3d(rgl::shapelist3d(item_rgl, plot = FALSE), lit = lit)
+}
+
+################################################################################
+
+#' Plot polygons
+#'
+#' @description
+#' \code{plot_polys} plots items simulated by \code{add_item()}.
+#'
+#' @param poly_geom \code{matrix}, contains matrix with IDs and coordinates.
+#' @param col \code{character}, color of the items.
+#' @param add \code{boolean}, add the plot to current active \code{rgl} plot.
+#' @param lit \code{boolean}, whether the polygons should be lit.
+#'
+#' @return
+#' \code{rgl} plot of all items.
+#'
+#' @seealso \code{\link{add_item}}, \code{\link{plot_shade_items}}
+#'
+#' @examples
+#' # load wood polygons
+#' file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
+#' poly_wood <- read.table(file_path, header = T)
+#'
+#' # load leaf polygons
+#' file_path <- system.file("extdata", "pear_leaves.txt", package="qsm2shade")
+#' poly_leaves <- read.table(file_path, header = T)
+#'
+#' # plot wood & leaves (takes quite some time)
+#' plot_polys(poly_wood, col = "salmon4", add = F)
+#' plot_polys(poly_leaves, col = "darkolivegreen3", add = T)
+#' @export
+plot_polys <- function(poly_geom, col = "grey40", add = TRUE, lit = TRUE) {
+
+  # remove items with NAs
+  poly_geom <- na.omit(poly_geom)
+
+  # open new window
+  if (!add) rgl::open3d()
+
+  # plot items
+  poly_rgl <- lapply(unique(poly_geom[,1]), function(id) {
+    poly_id <- NULL
+    if (is.null(poly_id)) {
+      try({poly_id <- rgl::polygon3d(poly_geom[poly_geom[,1] == id,2:4],
+                                     plot = FALSE, coords = c(1,2))}, silent = T)
+      if (is.null(poly_id)) {
+        try({poly_id <- rgl::polygon3d(poly_geom[poly_geom[,1] == id,2:4],
+                                       plot = FALSE, coords = c(2,3))}, silent = T)
+        if (is.null(poly_id)) {
+          try({poly_i <- rgl::polygon3d(poly_geom[poly_geom[,1] == id,2:4],
+                                        plot = FALSE, coords = c(1,3))}, silent = T)
+        }
+      }
+    }
+    poly_id$material$color <- col
+    poly_id
+  })
+  rgl::shade3d(rgl::shapelist3d(poly_rgl, plot = FALSE), lit = lit)
 }
 
 ################################################################################
@@ -159,12 +219,7 @@ plot_shade <- function(shade, col, add) {
   # plot shade
   shade_rgl <- lapply(unique(shade[,1]), function(i) {
     subset <- shade[shade[,1] == i,]
-    poly_i <- rgl::polygon3d(
-      x = subset[,2],
-      y = subset[,3],
-      z = subset[,4],
-      lit = FALSE,
-      plot = FALSE)
+    poly_i <- rgl::polygon3d(subset[,2:4], lit = FALSE,plot = FALSE)
     poly_i$material$color <- col
     poly_i
   })
@@ -196,7 +251,7 @@ plot_shade <- function(shade, col, add) {
 #'
 #' @examples
 #' # load qsm
-#' file_path <- system.file("extdata", "Prunus_avium_QSM_simplified.mat", package="qsm2shade")
+#' file_path <- system.file("extdata", "walnut.mat", package="qsm2shade")
 #' qsm <- qsm2r::readQSM(file_path)
 #'
 #' # shift qsm to origin
@@ -372,7 +427,7 @@ plot_shade_items <- function(item_pts, sun_direction = c(0.25, 0.5, -0.75),
 #' @export
 plot_ground <- function(plane_origin = c(0,0,0), plane_norm = c(0,0,1),
                         radius = 12, n_dir = 30L, z_offset = -0.005,
-                        col = "#B6CC8F", add = TRUE) {
+                        col = "#B6CC8F", add = TRUE, lit = TRUE) {
 
   # stop if not enough angles
   if (n_dir <= 3) stop("")
@@ -394,16 +449,14 @@ plot_ground <- function(plane_origin = c(0,0,0), plane_norm = c(0,0,1),
   p_z <- plane_origin[3] + radius * (cos(angles) * vec_plane_1[3] + sin(angles) * vec_plane_2[3])
   p_circle <- cbind(1, p_x, p_y, p_z)
 
+  # add z offset
+  p_circle[,4] <- p_circle[,4] + z_offset
+
   # open new window
   if (!add) rgl::open3d()
 
   # plot shade
-  rgl::polygon3d(
-    x = p_circle[,2],
-    y = p_circle[,3],
-    z = p_circle[,4] + z_offset,
-    col = col,
-    lit = FALSE)
+  rgl::polygon3d(p_circle[,2:4], col = col, lit = lit)
 }
 
 ################################################################################
