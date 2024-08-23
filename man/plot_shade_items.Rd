@@ -8,7 +8,7 @@ plot_shade_items(
   item_pts,
   sun_direction = c(0.25, 0.5, -0.75),
   plane_origin = c(0, 0, 0),
-  plane_norm = c(0, 0, 1),
+  plane_normal = c(0, 0, 1),
   col = "grey40",
   add = TRUE
 )
@@ -22,7 +22,7 @@ sun direction.}
 \item{plane_origin}{\code{numeric}, \code{xyz}-vector of a point on the
 ground.}
 
-\item{plane_norm}{\code{numeric}, \code{xyz}-vector of the ground normal.}
+\item{plane_normal}{\code{numeric}, \code{xyz}-vector of the ground normal.}
 
 \item{col}{\code{character}, color of the shade.}
 

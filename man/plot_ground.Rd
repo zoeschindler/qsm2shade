@@ -6,7 +6,7 @@
 \usage{
 plot_ground(
   plane_origin = c(0, 0, 0),
-  plane_norm = c(0, 0, 1),
+  plane_normal = c(0, 0, 1),
   radius = 12,
   n_dir = 30L,
   z_offset = -0.005,
@@ -19,7 +19,7 @@ plot_ground(
 \item{plane_origin}{\code{numeric}, \code{xyz}-vector of a point on the
 ground.}
 
-\item{plane_norm}{\code{numeric}, \code{xyz}-vector of the ground normal.}
+\item{plane_normal}{\code{numeric}, \code{xyz}-vector of the ground normal.}
 
 \item{radius}{\code{numeric}, circle radius in meters.}
 
@@ -59,10 +59,10 @@ ground_origin <- c(0,0,0)
 ground_normal <- c(0.1,0.05,1)
 
 # plot ground
-plot_ground(plane_origin = ground_origin, plane_norm = ground_normal)
+plot_ground(plane_origin = ground_origin, plane_normal = ground_normal)
 
 # plot shade of wood
-plot_shade_wood(qsm, plane_origin = ground_origin, plane_norm = ground_normal)
+plot_shade_wood(qsm, plane_origin = ground_origin, plane_normal = ground_normal)
 }
 \seealso{
 \code{\link{plot_shade}}, \code{\link{plot_shade_items}}

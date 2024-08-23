@@ -302,13 +302,13 @@ las_tree_location <- function(las, lwr_height = 1.2, upr_height = 1.4) {
 #'
 #' # plot qsm and ground
 #' qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
-#' plot_ground(plane_origin = c(0,0,0), plane_norm = ground_normal, radius = 4, add = TRUE)
+#' plot_ground(plane_origin = c(0,0,0), plane_normal = ground_normal, radius = 4, add = TRUE)
 #' rgl::bg3d("white"); rgl::axes3d()
 #'
 #' # plot las
 #' lidR::plot(las)
 #' plot_ground(plane_origin = c(location[1]-min(las$X), location[2]-min(las$Y), min(las$Z)),
-#'             plane_norm = ground_normal, radius = 4, add = TRUE)
+#'             plane_normal = ground_normal, radius = 4, add = TRUE)
 #' rgl::bg3d("white"); rgl::axes3d()
 #' @export
 las_ground_normal <- function(las, location = c(0,0), radius = 3) {

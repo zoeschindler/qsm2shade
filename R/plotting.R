@@ -240,7 +240,7 @@ plot_shade <- function(shade, col, add) {
 #' sun direction.
 #' @param plane_origin \code{numeric}, \code{xyz}-vector of a point on the
 #' ground.
-#' @param plane_norm \code{numeric}, \code{xyz}-vector of the ground normal.
+#' @param plane_normal \code{numeric}, \code{xyz}-vector of the ground normal.
 #' @param col \code{character}, color of the shade.
 #' @param add \code{boolean}, add the plot to current active \code{rgl} plot.
 #'
@@ -265,7 +265,7 @@ plot_shade <- function(shade, col, add) {
 #' plot_shade_wood(qsm)
 #' @export
 plot_shade_wood <- function(qsm, sun_direction = c(0.25, 0.5, -0.75),
-                            plane_origin = c(0,0,0), plane_norm = c(0,0,1),
+                            plane_origin = c(0,0,0), plane_normal = c(0,0,1),
                             col = "grey40", add = TRUE) {
 
   # prepare qsm
@@ -276,7 +276,7 @@ plot_shade_wood <- function(qsm, sun_direction = c(0.25, 0.5, -0.75),
   sun_direction[2] <- sun_direction[2] * (-1)
 
   # get shadows
-  shade_wood <- shade_wood(sun_direction = sun_direction, tree = tree, plane_origin = plane_origin, plane_norm = plane_norm)
+  shade_wood <- shade_wood(sun_direction = sun_direction, tree = tree, plane_origin = plane_origin, plane_normal = plane_normal)
 
   # plot shadows
   plot_shade(shade_wood[[1]], col = col, add = add)
@@ -297,7 +297,7 @@ plot_shade_wood <- function(qsm, sun_direction = c(0.25, 0.5, -0.75),
 #' sun direction.
 #' @param plane_origin \code{numeric}, \code{xyz}-vector of a point on the
 #' ground.
-#' @param plane_norm \code{numeric}, \code{xyz}-vector of the ground normal.
+#' @param plane_normal \code{numeric}, \code{xyz}-vector of the ground normal.
 #' @param col \code{character}, color of the shade.
 #' @param add \code{boolean}, add the plot to current active \code{rgl} plot.
 #'
@@ -360,7 +360,7 @@ plot_shade_wood <- function(qsm, sun_direction = c(0.25, 0.5, -0.75),
 #' plot_shade_items(leaves)
 #' @export
 plot_shade_items <- function(item_pts, sun_direction = c(0.25, 0.5, -0.75),
-                             plane_origin = c(0,0,0), plane_norm = c(0,0,1),
+                             plane_origin = c(0,0,0), plane_normal = c(0,0,1),
                              col = "grey40", add = TRUE) {
 
   # remove items with NAs
@@ -371,7 +371,7 @@ plot_shade_items <- function(item_pts, sun_direction = c(0.25, 0.5, -0.75),
   sun_direction[2] <- sun_direction[2] * (-1)
 
   # get shadows
-  shade_items <- shade_items(sun_direction = sun_direction, item_pts = item_pts, plane_origin = plane_origin, plane_norm = plane_norm)
+  shade_items <- shade_items(sun_direction = sun_direction, item_pts = item_pts, plane_origin = plane_origin, plane_normal = plane_normal)
 
   # plot shadows
   plot_shade(shade_items[[1]], col = col, add = add)
@@ -390,7 +390,7 @@ plot_shade_items <- function(item_pts, sun_direction = c(0.25, 0.5, -0.75),
 #'
 #' @param plane_origin \code{numeric}, \code{xyz}-vector of a point on the
 #' ground.
-#' @param plane_norm \code{numeric}, \code{xyz}-vector of the ground normal.
+#' @param plane_normal \code{numeric}, \code{xyz}-vector of the ground normal.
 #' @param radius \code{numeric}, circle radius in meters.
 #' @param n_dir \code{integer}, the number of directions at which points on the
 #' circle are calculated.
@@ -420,12 +420,12 @@ plot_shade_items <- function(item_pts, sun_direction = c(0.25, 0.5, -0.75),
 #' ground_normal <- c(0.1,0.05,1)
 #'
 #' # plot ground
-#' plot_ground(plane_origin = ground_origin, plane_norm = ground_normal)
+#' plot_ground(plane_origin = ground_origin, plane_normal = ground_normal)
 #'
 #' # plot shade of wood
-#' plot_shade_wood(qsm, plane_origin = ground_origin, plane_norm = ground_normal)
+#' plot_shade_wood(qsm, plane_origin = ground_origin, plane_normal = ground_normal)
 #' @export
-plot_ground <- function(plane_origin = c(0,0,0), plane_norm = c(0,0,1),
+plot_ground <- function(plane_origin = c(0,0,0), plane_normal = c(0,0,1),
                         radius = 12, n_dir = 30L, z_offset = -0.005,
                         col = "#B6CC8F", add = TRUE, lit = TRUE) {
 
@@ -436,12 +436,12 @@ plot_ground <- function(plane_origin = c(0,0,0), plane_norm = c(0,0,1),
   angles <- deg2rad(seq(from = 0, to = 360, length.out = n_dir + 1))
 
   # change format
-  plane_norm <- t(plane_norm)
+  plane_normal <- t(plane_normal)
 
   # define vectors on the plane
-  vec_random <- plane_norm + c(1,0,0)
-  vec_plane_1 <- simple_cross(plane_norm, vec_random)
-  vec_plane_2 <- simple_cross(plane_norm, vec_plane_1)
+  vec_random <- plane_normal + c(1,0,0)
+  vec_plane_1 <- simple_cross(plane_normal, vec_random)
+  vec_plane_2 <- simple_cross(plane_normal, vec_plane_1)
 
   # calculate points
   p_x <- plane_origin[1] + radius * (cos(angles) * vec_plane_1[1] + sin(angles) * vec_plane_2[1])

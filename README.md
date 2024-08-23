@@ -82,6 +82,54 @@ plot_shade_items(leaves)
 
 <img src = "https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_default_tree_shade_leaves.PNG" align="center" width = 800/>
 
+## Example: Plot QSM with shade & flowers on sloped ground
+
+```R
+# load qsm
+file_path <- system.file("extdata", "walnut.mat", package="qsm2shade")
+qsm <- qsm2r::readQSM(file_path)
+
+# shift qsm to origin
+# (shade is always projected to z = 0)
+qsm <- qsm2r::set_location(qsm, c(0,0,0))
+
+# define ground
+plane_origin <- c(0,0,0)
+plane_normal <- c(0.1, 0.2, 1)
+
+# create dummy item regression
+distribution <- dummy_item_distribution()
+distribution <- distribution[1:4,]
+distribution$m_per_item <- c(0.02, 0.04, 0.1, 0.2)
+
+# create polygons for single item
+flower <- create_single_flower(radius_m = 0.015)
+
+# add items
+flowers <- add_items(qsm, distribution, flower, item_type = "leaves")
+
+# plot qsm
+qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
+
+# plot items
+plot_items(flowers, col = "#FFC8B8")
+
+# plot ground
+plot_ground(plane_origin = plane_origin, plane_normal = plane_normal,
+            radius = 6, col = "#B1DA9B", lit = FALSE)
+
+# plot shade of wood
+plot_shade_wood(qsm, plane_origin = plane_origin, plane_normal = plane_normal)
+
+# plot shade of items
+plot_shade_items(flowers, plane_origin = plane_origin, plane_normal = plane_normal)
+
+# modify plot
+rgl::bg3d("#CAEEFF"); rgl::axes3d()
+```
+
+<img src = "https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_default_tree_shade_flowers_slope.PNG" align="center" width = 800/>
+
 ## Example: Calculate QSM shade for one day
 
 ```R

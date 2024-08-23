@@ -17,7 +17,7 @@ shade_tree_polys(
   ymax = 20,
   transparency = 0,
   plane_origin = c(0, 0, 0),
-  plane_norm = c(0, 0, 1)
+  plane_normal = c(0, 0, 1)
 )
 }
 \arguments{
@@ -45,7 +45,7 @@ meters, relative to the stem base.}
 \item{plane_origin}{\code{numeric}, \code{xyz}-vector of a point on the
 ground.}
 
-\item{plane_norm}{\code{numeric}, \code{xyz}-vector of the ground normal.}
+\item{plane_normal}{\code{numeric}, \code{xyz}-vector of the ground normal.}
 
 \item{item_pts}{\code{matrix}, contains coordinates of simulated items.}
 }

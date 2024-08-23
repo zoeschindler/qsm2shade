@@ -86,7 +86,7 @@ sun_movement <- function(timeframe, latitude, longitude, timezone = 0) {
 ################################################################################
 
 # calculate wood shadow polygons
-shade_wood <- function(sun_direction, tree, plane_origin, plane_norm) {
+shade_wood <- function(sun_direction, tree, plane_origin, plane_normal) {
 
   # get cylinder vertices
   # https://www.nagwa.com/en/explainers/616184792816/
@@ -128,9 +128,9 @@ shade_wood <- function(sun_direction, tree, plane_origin, plane_norm) {
   # insert:     normal * (point + t * sun - origin) = 0
   # rearrange:  t = -(normal * (point - origin))/(normal * sun)
   times_sun <- (
-    plane_norm[1] * (cyl_pts[,px_cols] - plane_origin[1]) +
-      plane_norm[2] * (cyl_pts[,py_cols] - plane_origin[2]) +
-      plane_norm[3] * (cyl_pts[,pz_cols] - plane_origin[3])) / c(plane_norm %*% sun_direction)
+    plane_normal[1] * (cyl_pts[,px_cols] - plane_origin[1]) +
+      plane_normal[2] * (cyl_pts[,py_cols] - plane_origin[2]) +
+      plane_normal[3] * (cyl_pts[,pz_cols] - plane_origin[3])) / c(plane_normal %*% sun_direction)
   projected <- matrix(c(
     1:nrow(cyl_pts),
     cyl_pts[,px_cols] - times_sun * sun_direction[1],
@@ -157,7 +157,7 @@ shade_wood <- function(sun_direction, tree, plane_origin, plane_norm) {
   colnames(conv_hulls) <- c("id", "x", "y", "z")
 
   # set z to exactly zero, if ground is flat
-  if (all(plane_origin == c(0,0,0)) & all(plane_norm == c(0,0,1))) conv_hulls[,"z"] <- 0
+  if (all(plane_origin == c(0,0,0)) & all(plane_normal == c(0,0,1))) conv_hulls[,"z"] <- 0
 
   # return polygons
   return(list(conv_hulls))
@@ -169,7 +169,7 @@ shade_wood_comp <- compiler::cmpfun(shade_wood)
 ################################################################################
 
 # calculate item shadow polygons
-shade_items <- function(sun_direction, item_pts, plane_origin, plane_norm) {
+shade_items <- function(sun_direction, item_pts, plane_origin, plane_normal) {
 
   # get coordinate cols
   poly_cols <- colnames(item_pts)
@@ -183,9 +183,9 @@ shade_items <- function(sun_direction, item_pts, plane_origin, plane_norm) {
   # insert:     normal * (point + t * sun - origin) = 0
   # rearrange:  t = -(normal * (point - origin))/(normal * sun)
   times_sun <- (
-    plane_norm[1] * (item_pts[,px_cols] - plane_origin[1]) +
-      plane_norm[2] * (item_pts[,py_cols] - plane_origin[2]) +
-      plane_norm[3] * (item_pts[,pz_cols] - plane_origin[3])) / c(plane_norm %*% sun_direction)
+    plane_normal[1] * (item_pts[,px_cols] - plane_origin[1]) +
+      plane_normal[2] * (item_pts[,py_cols] - plane_origin[2]) +
+      plane_normal[3] * (item_pts[,pz_cols] - plane_origin[3])) / c(plane_normal %*% sun_direction)
   projected <- matrix(c(
     1:nrow(item_pts),
     item_pts[,px_cols] - times_sun * sun_direction[1],
@@ -217,7 +217,7 @@ shade_items_comp <- compiler::cmpfun(shade_items)
 ################################################################################
 
 # calculate shadows for polygons
-shade_polys <- function(sun_direction, polys, plane_origin, plane_norm) {
+shade_polys <- function(sun_direction, polys, plane_origin, plane_normal) {
 
   # calculate intersections between ground and light
   # line:       point + t * sun
@@ -225,9 +225,9 @@ shade_polys <- function(sun_direction, polys, plane_origin, plane_norm) {
   # insert:     normal * (point + t * sun - origin) = 0
   # rearrange:  t = -(normal * (point - origin))/(normal * sun)
   times_sun <- (
-    plane_norm[1] * (polys[,2] - plane_origin[1]) +
-      plane_norm[2] * (polys[,3] - plane_origin[2]) +
-      plane_norm[3] * (polys[,4] - plane_origin[3])) / c(plane_norm %*% sun_direction)
+    plane_normal[1] * (polys[,2] - plane_origin[1]) +
+      plane_normal[2] * (polys[,3] - plane_origin[2]) +
+      plane_normal[3] * (polys[,4] - plane_origin[3])) / c(plane_normal %*% sun_direction)
   polys[,2] <- polys[,2] - times_sun * sun_direction[1] # x
   polys[,3] <- polys[,3] - times_sun * sun_direction[2] # y
   polys[,4] <- polys[,4] - times_sun * sun_direction[3] # z
@@ -269,7 +269,7 @@ shade_polys_comp <- compiler::cmpfun(shade_polys)
 #' 1 = fully transparent, 0 = fully opaque.
 #' @param plane_origin \code{numeric}, \code{xyz}-vector of a point on the
 #' ground.
-#' @param plane_norm \code{numeric}, \code{xyz}-vector of the ground normal.
+#' @param plane_normal \code{numeric}, \code{xyz}-vector of the ground normal.
 #'
 #' @return
 #' \code{SpatRaster}, contains radiation around the tree for each
@@ -336,7 +336,7 @@ shade_polys_comp <- compiler::cmpfun(shade_polys)
 shade_tree <- function(
     qsm, sun_position, radiation = NULL, resolution = 0.1, item_pts = NULL,
     sequential = TRUE, xmin = -20, xmax = 20, ymin = -20, ymax = 20,
-    transparency = 0, plane_origin = c(0,0,0), plane_norm = c(0,0,1)) {
+    transparency = 0, plane_origin = c(0,0,0), plane_normal = c(0,0,1)) {
 
   # prepare tree data
   tree <- qsm2shade:::prepare_qsm(qsm, keep_all = FALSE)
@@ -387,14 +387,14 @@ shade_tree <- function(
     message("... creating wood shadows")
     wood_poly_terra <- apply(
       sun_direction, 2, qsm2shade:::shade_wood_comp, tree = tree,
-      plane_origin = plane_origin, plane_norm = plane_norm) |> lapply(qsm2shade:::list_polygonize)
+      plane_origin = plane_origin, plane_normal = plane_normal) |> lapply(qsm2shade:::list_polygonize)
 
     # calculate item shadows
     if (!is.null(item_pts)) {
       message("... creating item shadows")
       item_poly_terra <- apply(
         sun_direction, 2, qsm2shade:::shade_items_comp, item_pts = item_pts,
-        plane_origin = plane_origin, plane_norm = plane_norm) |> lapply(qsm2shade:::list_polygonize)
+        plane_origin = plane_origin, plane_normal = plane_normal) |> lapply(qsm2shade:::list_polygonize)
 
     } else {
       item_poly_terra <- NULL
@@ -412,7 +412,7 @@ shade_tree <- function(
 
     # export objects to cores
     parallel::clusterExport(cl, list(
-      "packages_cl", "tree", "item_pts", "sun_direction", "norm_cross", "plane_origin", "plane_norm"),
+      "packages_cl", "tree", "item_pts", "sun_direction", "norm_cross", "plane_origin", "plane_normal"),
       envir = environment())
 
     # execute on all cores
@@ -426,14 +426,14 @@ shade_tree <- function(
     message("... creating wood shadows")
     wood_poly_terra <- parallel::parApply(
       cl, sun_direction, 2, qsm2shade:::shade_wood_comp, tree = tree,
-      plane_origin = plane_origin, plane_norm = plane_norm) |> lapply(qsm2shade:::list_polygonize)
+      plane_origin = plane_origin, plane_normal = plane_normal) |> lapply(qsm2shade:::list_polygonize)
 
     # calculate item shadows
     if (!is.null(item_pts)) {
       message("... creating item shadows")
       item_poly_terra <- parallel::parApply(
         cl, sun_direction, 2, qsm2shade:::shade_items_comp, item_pts = item_pts,
-        plane_origin = plane_origin, plane_norm = plane_norm) |> lapply(qsm2shade:::list_polygonize)
+        plane_origin = plane_origin, plane_normal = plane_normal) |> lapply(qsm2shade:::list_polygonize)
     } else {
       item_poly_terra <- NULL
     }
@@ -542,7 +542,7 @@ shade_tree <- function(
 #' 1 = fully transparent, 0 = fully opaque.
 #' @param plane_origin \code{numeric}, \code{xyz}-vector of a point on the
 #' ground.
-#' @param plane_norm \code{numeric}, \code{xyz}-vector of the ground normal.
+#' @param plane_normal \code{numeric}, \code{xyz}-vector of the ground normal.
 #'
 #' @return
 #' \code{SpatRaster}, contains radiation around the tree for each
@@ -593,7 +593,7 @@ shade_tree <- function(
 shade_tree_polys <- function(
     poly_wood, poly_leaves = NULL, sun_position, radiation = NULL, resolution = 0.1,
     sequential = TRUE, xmin = -20, xmax = 20, ymin = -20, ymax = 20,
-    transparency = 0, plane_origin = c(0,0,0), plane_norm = c(0,0,1)) {
+    transparency = 0, plane_origin = c(0,0,0), plane_normal = c(0,0,1)) {
 
   # prepare polygon data
   poly_wood <- as.matrix(poly_wood)
@@ -645,14 +645,14 @@ shade_tree_polys <- function(
     message("... creating wood shadows")
     wood_poly_terra <- apply(
       sun_direction, 2, qsm2shade:::shade_polys_comp, polys = poly_wood,
-      plane_origin = plane_origin, plane_norm = plane_norm) |> lapply(qsm2shade:::list_polygonize)
+      plane_origin = plane_origin, plane_normal = plane_normal) |> lapply(qsm2shade:::list_polygonize)
 
     # calculate leaf shadows
     if (!is.null(poly_leaves)) {
       message("... creating leaf shadows")
       item_poly_terra <- apply(
         sun_direction, 2, qsm2shade:::shade_polys_comp, polys = poly_leaves,
-        plane_origin = plane_origin, plane_norm = plane_norm) |> lapply(qsm2shade:::list_polygonize)
+        plane_origin = plane_origin, plane_normal = plane_normal) |> lapply(qsm2shade:::list_polygonize)
 
     } else {
       item_poly_terra <- NULL
@@ -670,7 +670,7 @@ shade_tree_polys <- function(
 
     # export objects to cores
     parallel::clusterExport(cl, list(
-      "packages_cl", "poly_wood", "poly_leaves", "sun_direction", "norm_cross", "plane_origin", "plane_norm"),
+      "packages_cl", "poly_wood", "poly_leaves", "sun_direction", "norm_cross", "plane_origin", "plane_normal"),
       envir = environment())
 
     # execute on all cores
@@ -684,14 +684,14 @@ shade_tree_polys <- function(
     message("... creating wood shadows")
     wood_poly_terra <- parallel::parApply(
       cl, sun_direction, 2, qsm2shade:::shade_polys_comp, polys = poly_wood,
-      plane_origin = plane_origin, plane_norm = plane_norm) |> lapply(qsm2shade:::list_polygonize)
+      plane_origin = plane_origin, plane_normal = plane_normal) |> lapply(qsm2shade:::list_polygonize)
 
     # calculate item shadows
     if (!is.null(poly_leaves)) {
       message("... creating item shadows")
       item_poly_terra <- parallel::parApply(
         cl, sun_direction, 2, qsm2shade:::shade_polys_comp, polys = poly_leaves,
-        plane_origin = plane_origin, plane_norm = plane_norm) |> lapply(qsm2shade:::list_polygonize)
+        plane_origin = plane_origin, plane_normal = plane_normal) |> lapply(qsm2shade:::list_polygonize)
     } else {
       item_poly_terra <- NULL
     }
