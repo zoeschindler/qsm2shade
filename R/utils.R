@@ -60,9 +60,6 @@ simple_cross <- function(v, w) {
 # calculate scalar product of xyz matrices
 scalar_prod <- function(v, w) {
 
-  # object for storage
-  scalar <- matrix(NA, nrow = nrow(v), ncol = 3)
-
   # return scalar product
   return(v[,1] * w[,1] + v[,2] * w[,2] + v[,3] * w[,3])
 }
@@ -138,14 +135,15 @@ prepare_qsm <- function(qsm, keep_all = FALSE) {
 
 ################################################################################
 
-#' Extract stem coordinates from polyons
+#' Extract stem coordinates from wood geoms
 #'
 #' @description
-#' \code{poly_tree_location} extracts the coordinates of the stem of a single
-#' tree at a specified height range. Assumes that the input polygons describe
+#' \code{geom_tree_location} extracts the coordinates of the stem of a single
+#' tree at a specified height range. Assumes that the input geoms describe
 #' only one tree. The heights refer to the height over the ground.
 #'
-#' @param poly contains matrix with IDs and coordinates of wood polygons.
+#' @param geom \code{matrix}, contains matrix with IDs and coordinates of wood
+#' geoms.
 #' @param lwr_height \code{numeric}, lower height threshold in meters.
 #' @param upr_height \code{numeric}, upper height threshold in meters.
 #'
@@ -155,22 +153,22 @@ prepare_qsm <- function(qsm, keep_all = FALSE) {
 #' @seealso \code{\link{plot_ground}}
 #'
 #' @examples
-#' # load wood polygons
+#' # load wood geoms
 #' file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
-#' poly_wood <- read.table(file_path, header = T
+#' geom_wood <- read.table(file_path, header = T
 #'
 #' # get stem location
-#' location <- las_tree_location(poly_wood)
+#' location <- las_tree_location(geom_wood)
 #' @export
-poly_tree_location <- function(poly, lwr_height = 0.3, upr_height = 0.6) {
+geom_tree_location <- function(geom, lwr_height = 0.3, upr_height = 0.6) {
 
-  # get the id of every polygon within the height section
-  min_z <- min(poly[,4])
-  id_within <- unique(poly[poly[,4] >= min_z + lwr_height & poly[,4] <= min_z + upr_height, 1])
+  # get the id of every geom within the height section
+  min_z <- min(geom[,4])
+  id_within <- unique(geom[geom[,4] >= min_z + lwr_height & geom[,4] <= min_z + upr_height, 1])
 
-  # get the x + y values of the polygon vertices
-  x_vals <- poly[poly[,1] %in% id_within, 2]
-  y_vals <- poly[poly[,1] %in% id_within, 3]
+  # get the x + y values of the geom vertices
+  x_vals <- geom[geom[,1] %in% id_within, 2]
+  y_vals <- geom[geom[,1] %in% id_within, 3]
 
   # calculate center of the 95% quantile
   x_center <- sum(quantile(x_vals, p = c(0.025, 0.975)))/2
@@ -182,40 +180,40 @@ poly_tree_location <- function(poly, lwr_height = 0.3, upr_height = 0.6) {
 
 ################################################################################
 
-#' Move polygons to coordinates
+#' Move geoms by an offset
 #'
 #' @description
-#' \code{poly_shift} shifts the coordinates of polygons by specified offsets in
+#' \code{geom_shift} shifts the coordinates of geoms by specified offsets in
 #' the x, y and z direction.
 #'
-#' @param poly contains matrix with IDs and coordinates of polygons.
+#' @param geom \code{matrix}, contains matrix with IDs and coordinates.
 #' @param offset \code{numeric}, contains \code{xyz}-coordinates of the require shift.
 #'
 #' @return
-#' A matrix with the IDs and coordinates of the shifted polygons.
+#' A matrix with the IDs and coordinates of the shifted geoms.
 #'
-#' @seealso \code{\link{poly_tree_location}}
+#' @seealso \code{\link{geom_tree_location}}
 #'
 #' @examples
-#' # load wood polygons
+#' # load wood geoms
 #' file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
-#' poly_wood <- read.table(file_path, header = T
+#' geom_wood <- read.table(file_path, header = T
 #'
 #' # get stem location
-#' location <- las_tree_location(poly_wood)
+#' location <- las_tree_location(geom_wood)
 #'
 #' # shift stem location to 0,0,0
-#' poly_wood <- poly_shift(poly_wood, location)
+#' geom_wood <- geom_shift(geom_wood, location)
 #' @export
-poly_shift <- function(poly, offset = c(0,0,0)) {
+geom_shift <- function(geom, offset = c(0,0,0)) {
 
   # shift coordinates one by one
-  poly[,2] <- poly[,2] - offset[1]
-  poly[,3] <- poly[,3] - offset[2]
-  poly[,4] <- poly[,4] - offset[3]
+  geom[,2] <- geom[,2] - offset[1]
+  geom[,3] <- geom[,3] - offset[2]
+  geom[,4] <- geom[,4] - offset[3]
 
-  # return shifted polygons
-  return(poly)
+  # return shifted geoms
+  return(geom)
 }
 
 ################################################################################

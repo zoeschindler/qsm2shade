@@ -62,8 +62,8 @@ ground_normal <- c(0.1,0.05,1)
 plot_ground(plane_origin = ground_origin, plane_normal = ground_normal)
 
 # plot shade of wood
-plot_shade_wood(qsm, plane_origin = ground_origin, plane_normal = ground_normal)
+plot_shade_qsm(qsm, plane_origin = ground_origin, plane_normal = ground_normal)
 }
 \seealso{
-\code{\link{plot_shade}}, \code{\link{plot_shade_items}}
+\code{\link{plot_shade}}, \code{\link{plot_shade_geoms}}
 }

@@ -7,9 +7,9 @@
 shade_tree(
   qsm,
   sun_position,
+  geoms = NULL,
   radiation = NULL,
   resolution = 0.1,
-  item_pts = NULL,
   sequential = TRUE,
   xmin = -20,
   xmax = 20,
@@ -25,13 +25,14 @@ shade_tree(
 
 \item{sun_position}{\code{data.frame}, sunlight direction over the time.}
 
+\item{geoms}{\code{matrix}, contains coordinates of simulated leaves /
+flowers.}
+
 \item{radiation}{\code{data.frame}, diffuse and global radiation over time,
 must be formatted as the example from \code{dummy_radiation()}, leave empty
 to obtain only light intensity.}
 
 \item{resolution}{\code{numeric}, spatial resolution of output rasters.}
-
-\item{item_pts}{\code{matrix}, contains coordinates of simulated items.}
 
 \item{sequential}{\code{boolean}, whether sequential (\code{TRUE}) or
 parallel processing (\code{FALSE}) should be used.}
@@ -98,17 +99,17 @@ plot(result)
 
 # with leaves:
 
-# create polygons for single item
-leaf <- create_single_leaf(leaf_type = "normal", length_m = 0.1)
+# create geoms for single item
+leaf <- create_leaf(type = "normal", length_m = 0.1)
 
 # get dummy item distribution
 distribution <- dummy_item_distribution()
 
 # create items
-leaf_pts <- add_items(qsm, distribution, leaf, item_type = "leaves")
+leaves <- add_geoms(qsm, distribution, leaf, item_type = "leaf")
 
 # calculate shade
-result <- shade_tree(qsm, sun_position, radiation, item_pts = leaf_pts)
+result <- shade_tree(qsm, sun_position, geoms = leaves, radiation = radiation)
 
 # summarize per day
 result_daily <- shade_summarize(result, "day")
@@ -118,5 +119,5 @@ terra::plot(result_daily)
 }
 \seealso{
 \code{\link{shade_summarize}}, \code{\link{sun_movement}},
-\code{\link{add_items}}
+\code{\link{add_geoms}}
 }

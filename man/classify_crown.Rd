@@ -45,5 +45,5 @@ qsm <- qsm2r::readQSM(file_path)
 classify_crown(qsm, compass_directions = 8, outside_buffer_m = 2, vertical_sections = 3)
 }
 \seealso{
-\code{\link{add_items}}
+\code{\link{add_geoms}}
 }

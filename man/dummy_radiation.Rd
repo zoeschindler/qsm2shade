@@ -14,6 +14,8 @@ dummy_radiation(
 \item{start}{\code{POSIXct}, start time of the radiation data.}
 
 \item{end}{\code{POSIXct}, end time of the radiation data.}
+
+\item{interval}{\code{character}, time interval.}
 }
 \value{
 \code{data.frame}, contains diffuse and global radiation over time.

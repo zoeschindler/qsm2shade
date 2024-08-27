@@ -16,6 +16,9 @@ shade_summarize(
 
 \item{period}{\code{character}, length of summary period, either \code{"hour"},
 \code{"day"}, \code{"month"}, \code{"year"} or \code{"total"}.}
+
+\item{na.rm}{\code{boolean}, whether NAs should be removed prior to the
+calculation.}
 }
 \value{
 \code{SpatRaster}, stacked shade rasters summarized by time periods, the
@@ -37,7 +40,7 @@ sun_position <- sun_movement(ISOdate(2020, 03, 22, 0, 0), ISOdate(2020, 03, 23, 
 radiation <- dummy_radiation(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
 
 # calculate shade
-result <- shade_tree(qsm, sun_position, radiation)
+result <- shade_tree(qsm, sun_position = sun_position, radiation = radiation)
 
 # summarize per day
 result_daily <- shade_summarize(result, "day")

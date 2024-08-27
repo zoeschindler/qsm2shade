@@ -23,7 +23,7 @@
 #' \code{vertical} (vertical crown sections, 1 = lowest, n = highest) and
 #' \code{horizontal} (horizontal crown sections).
 #'
-#' @seealso \code{\link{add_items}}
+#' @seealso \code{\link{add_geoms}}
 #'
 #' @examples
 #' # load qsm
