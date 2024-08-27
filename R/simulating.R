@@ -88,7 +88,7 @@ create_flower <- function(radius_m = 0.01) {
 #' by \code{add_geoms()}.
 #'
 #' @param type \code{character}, shape of the leaf, should be one of
-#' \code{c("normal", "heart", "feather")}.
+#' \code{c("normal", "heart", "feather", "3d")}.
 #' @param length_m \code{numeric}, length of a single leaf in meters.
 #'
 #' @return
@@ -100,36 +100,45 @@ create_flower <- function(radius_m = 0.01) {
 #' # create polygon for single leaf
 #' leaf <- create_leaf()
 #' @export
-create_leaf <- function(type = c("normal", "heart", "feather"), length_m = 0.01) {
+create_leaf <- function(type = c("normal", "heart", "feather", "3d"), length_m = 0.01) {
 
   # check input validity
-  if (length(type) > 1 | !any(type %in% c("normal", "heart", "feather"))) {
-    stop("geom_type must be 'normal', 'heart' or 'feather'")
+  if (length(type) > 1 | !any(type %in% c("normal", "heart", "feather", "3d"))) {
+    stop("geom_type must be 'normal', 'heart', 'feather' or '3d'")
   }
 
   # create polygons
   if (type == "normal") {
-    leaf_poly <- data.frame(
+    leaf_geom <- data.frame(
+      "id" = 1,
       "x" = c(0, 3, 7, 10, 7, 3, 0),
       "y" = c(0, 4, 2, 0, -2, -4, 0),
-      "z" = c(0, 0, 0, 0, 0, 0, 0)) / 100 / (0.10 / length_m)
+      "z" = c(0, 0, 0, 0, 0, 0, 0))
   } else if (type == "heart") {
-    leaf_poly <- data.frame(
+    leaf_geom <- data.frame(
+      "id" = 1,
       "x" = c(0, 5, 8, 9, 10, 8, 10, 9, 8, 5, 0),
       "y" = c(0, 5, 6, 4, 2, 0, -2, -4, -6, -5, 0),
-      "z" = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) / 100 / (0.10 / length_m)
+      "z" = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
   } else if (type == "feather") {
-    leaf_poly <- data.frame(
+    leaf_geom <- data.frame(
+      "id" = 1,
       "x" = c(0, 1, 3, 2.5, 0.2, 3.0, 4, 6, 5.5, 3.1, 5.5, 7, 10,  7,  5.5,  3.1,  5.5,  6,  4,  3.0,  0.2,  2.5,  3,  1, 0),
       "y" = c(0, 2, 3, 1.0, 0.1, 0.1, 2, 3, 1.0, 0.1, 0.1, 1, 00, -1, -0.1, -0.1, -1.0, -3, -2, -0.1, -0.1, -1.0, -3, -2, 0),
-      "z" = c(0, 0, 0, 0.0, 0.0, 0.0, 0, 0, 0.0, 0.0, 0.0, 0, 00,  0,  0.0,  0.0,  0.0,  0,  0,  0.0,  0.0,  0.0,  0,  0, 0)) / 100 / (0.10 / length_m)
+      "z" = c(0, 0, 0, 0.0, 0.0, 0.0, 0, 0, 0.0, 0.0, 0.0, 0, 00,  0,  0.0,  0.0,  0.0,  0,  0,  0.0,  0.0,  0.0,  0,  0, 0))
+  } else if (type == "3d") {
+    leaf_geom <- data.frame(
+      "id" = rep(1:4, each = 4),
+      "x" = c(0, 5, 4, 0, 4, 5, 10, 4, 0, 5, 4, 0, 4, 5, 10, 4),
+      "y" = c(0, 0, -3, 0, -3, 0, 0, -3, 0, 0, 3, 0, 3, 0, 0, 3),
+      "z" = c(0, 0.5, -1, 0, -1, 0.5, 0, -1, 0, 0.5, -1, 0, -1, 0.5, 0, -1))
   }
 
-  # convert to geom format
-  leaf_geom <- as.matrix(cbind("id" = 1, leaf_poly))
+  # scale according to length
+  leaf_geom[,c("x","y","z")] <- leaf_geom[,c("x","y","z")] / max(leaf_geom$x) * length_m
 
   # return polygon
-  return(leaf_geom)
+  return(as.matrix(leaf_geom))
 }
 
 ################################################################################
