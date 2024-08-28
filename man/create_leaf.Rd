@@ -4,11 +4,14 @@
 \alias{create_leaf}
 \title{Create single leaf polygon}
 \usage{
-create_leaf(type = c("normal", "heart", "feather", "3d"), length_m = 0.01)
+create_leaf(
+  type = c("normal", "ginkgo", "walnut", "3d_up", "3d_down", "3d_acer"),
+  length_m = 0.01
+)
 }
 \arguments{
 \item{type}{\code{character}, shape of the leaf, should be one of
-\code{c("normal", "heart", "feather", "3d")}.}
+\code{c("normal", "ginkgo", "walnut", "3d_up", "3d_down", "3d_acer")}.}
 
 \item{length_m}{\code{numeric}, length of a single leaf in meters.}
 }

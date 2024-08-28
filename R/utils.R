@@ -16,6 +16,47 @@ deg2rad <- function(deg) {
 
 ################################################################################
 
+# convert obj object (read with rgl) to geom matrix
+obj2geom <- function(obj) {
+
+  # get coordinates
+  xyz <- obj[["vb"]][1:3,]
+
+  # empty storage
+  geom <- c()
+  last_id <- 0
+
+  # get triangles
+  if (!is.null(obj[["it"]])) {
+    triangle_indices <- obj[["it"]]
+    triangle_indices <- triangle_indices[c(1:3,1),]
+    for (i in 1:ncol(triangle_indices)) {
+      curr <- cbind(last_id + 1,t(xyz[,triangle_indices[,i]]))
+      geom <- rbind(geom, curr)
+      last_id <- last_id + 1
+    }
+  }
+
+  # get quads
+  if (!is.null(obj[["ib"]])) {
+    quad_indices <- obj[["ib"]]
+    quad_indices <- quad_indices[c(1:4,1),]
+    for (i in 1:ncol(quad_indices)) {
+      curr <- cbind(last_id + 1,t(xyz[,quad_indices[,i]]))
+      geom <- rbind(geom, curr)
+      last_id <- last_id + 1
+    }
+  }
+
+  # change column names
+  colnames(geom) <- c("id", "x", "y", "z")
+
+  # retunr matrix
+  return(geom)
+}
+
+################################################################################
+
 # normalize an vector
 norm_vec <- function(v) {
   return(v / sqrt(sum(v**2)))

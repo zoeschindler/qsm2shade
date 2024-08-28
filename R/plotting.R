@@ -10,6 +10,7 @@
 #' @param geom \code{matrix}, contains matrix with IDs and coordinates.
 #' @param col \code{character}, color of the geom.
 #' @param lit \code{boolean}, whether the polygons should be lit.
+#' @param axes \code{boolean}, whether to add axes.
 #'
 #' @return
 #' \code{rgl} plot of one geom.
@@ -32,7 +33,10 @@
 #' # plot single leaf
 #' plot_geom (leaf, "darkolivegreen3")
 #' @export
-plot_geom <- function(geom, col = "#6D9DC5", lit = TRUE) {
+plot_geom <- function(geom, col = "#6D9DC5", lit = TRUE, axes = TRUE) {
+
+  # open new window
+  rgl::open3d()
 
   # plot single geom
   ids <- unique(geom[,1])
@@ -54,6 +58,12 @@ plot_geom <- function(geom, col = "#6D9DC5", lit = TRUE) {
     poly_id
   })
   rgl::shade3d(rgl::shapelist3d(geom_rgl, plot = FALSE), lit = lit)
+
+  # add axes + labels
+  if (axes) {
+    rgl::axes3d()
+    rgl::title3d(xlab = "x", ylab = "y", zlab = "z")
+  }
 }
 
 ################################################################################

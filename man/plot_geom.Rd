@@ -4,7 +4,7 @@
 \alias{plot_geom}
 \title{Plot a single geom}
 \usage{
-plot_geom(geom, col = "#6D9DC5", lit = TRUE)
+plot_geom(geom, col = "#6D9DC5", lit = TRUE, axes = TRUE)
 }
 \arguments{
 \item{geom}{\code{matrix}, contains matrix with IDs and coordinates.}
@@ -12,6 +12,8 @@ plot_geom(geom, col = "#6D9DC5", lit = TRUE)
 \item{col}{\code{character}, color of the geom.}
 
 \item{lit}{\code{boolean}, whether the polygons should be lit.}
+
+\item{axes}{\code{boolean}, whether to add axes.}
 }
 \value{
 \code{rgl} plot of one geom.
