@@ -106,7 +106,7 @@ distribution$m_per_geom <- c(0.02,0.04,0.1,0.2)
 flower <- create_flower(radius_m = 0.015)
 
 # add geoms
-flowers <- add_geoms(qsm, distribution, flower, geom_type = "leaf")
+flowers <- add_geoms(qsm, distribution, flower, geom_type = "flower")
 
 # plot qsm
 qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
