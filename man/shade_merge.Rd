@@ -24,8 +24,9 @@ none of the input rasters, shade is coded as 0 and light is coded as 1.}
 the layer names indicate the respective time period.
 }
 \description{
-\code{shade_merge} merges single or summarised rasters produced by
-\code{shade_tree_qsm()} or \code{shade_tree_geoms()}.
+\code{shade_merge} merges rasters produced by
+\code{shade_tree_qsm()} or \code{shade_tree_geoms()}, but works only for a
+single point in time.
 }
 \examples{
 # load wood geoms
@@ -58,16 +59,6 @@ summary_merged <- qsm2shade:::shade_merge(list(summary_a, summary_b, summary_c))
 
 # show results
 terra::plot(summary_merged)
-
-# set radiation values
-diffuse <- 0.7
-direct  <- 1.3
-
-# add radiation
-summary_merged_radiation <- diffuse + direct * summary_merged
-
-# show results
-terra::plot(summary_merged_radiation)
 }
 \seealso{
 \code{\link{shade_tree_qsm}}, \code{\link{shade_tree_geoms}}, \code{\link{add_radiation}}
