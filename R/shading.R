@@ -206,8 +206,8 @@ shade_geoms_comp <- compiler::cmpfun(shade_geoms)
 #' parallel processing (\code{FALSE}) should be used.
 #'
 #' @return
-#' \code{SpatRaster}, contains light / shade around the tree for each
-#' \code{sun_position}. The single rasters for the time steps are stored as
+#' \code{SpatRaster}, contains light / shade / in-between around the tree for
+#' each \code{sun_position}. The single rasters for the time steps are stored as
 #' layers with the timestamp as names.
 #'
 #' @details
@@ -443,8 +443,8 @@ shade_tree_qsm <- function(
 #' parallel processing (\code{FALSE}) should be used.
 #'
 #' @return
-#' \code{SpatRaster}, contains light / shade around the tree for each
-#' \code{sun_position}. The single rasters for the time steps are stored as
+#' \code{SpatRaster}, contains light / shade / in-between around the tree for
+#' each \code{sun_position}. The single rasters for the time steps are stored as
 #' layers with the timestamp as names.
 #'
 #' @details
@@ -805,7 +805,7 @@ dummy_radiation <- function(
 #' \code{SpatRaster}, stacked shade rasters summarized by time periods, the
 #' layer names indicate the respective time period.
 #'
-#' @seealso \code{\link{shade_tree_qsm}}
+#' @seealso \code{\link{shade_tree_qsm}}, \code{\link{shade_tree_geoms}}, \code{\link{add_radiation}}
 #'
 #' @examples
 #' # load qsm
@@ -852,15 +852,17 @@ shade_summarize <- function(radiation_grid, period = c("hour", "day", "month", "
     type <- "sum"
   }
 
-  # change to correct mean function
-  type <- ifelse(type == "mean", "terra::mean", type)
-
   # extract times from raster names
   timestep <- as.POSIXct(strptime(names(radiation_grid), "%Y-%m-%d %H:%M"))
 
   # add everything together
   if (period == "total") {
-    summarized <- sum(radiation_grid, na.rm = na.rm)
+    if (type == "mean") {
+      summarized <- terra::mean(radiation_grid, na.rm = na.rm)
+    } else {
+      summarized <- do.call(type, list(radiation_grid, na.rm = na.rm))
+    }
+    names(summarized) <- paste0(period, ", ", type)
     return(summarized)
   }
 
@@ -868,7 +870,11 @@ shade_summarize <- function(radiation_grid, period = c("hour", "day", "month", "
   period_all <- sort(unique(lubridate::floor_date(timestep, period)))
   summarized <- apply(matrix(period_all), 1, function(period_curr) {
     period_layers <- lubridate::floor_date(timestep, period) == period_curr
-    period_grid <- do.call(type, list(radiation_grid[[period_layers]], na.rm = na.rm))
+    if (type == "mean") {
+      period_grid <- terra::mean(radiation_grid[[period_layers]], na.rm = na.rm)
+    } else {
+      period_grid <- do.call(type, list(radiation_grid[[period_layers]], na.rm = na.rm))
+    }
     return(period_grid)})
   summarized <- terra::rast(summarized)
 
@@ -878,6 +884,91 @@ shade_summarize <- function(radiation_grid, period = c("hour", "day", "month", "
 
   # return summarized data
   return(summarized)
+}
+
+################################################################################
+
+#' Merge shade of multiple trees
+#'
+#' @description
+#' \code{shade_merge} merges single or summarised rasters produced by
+#' \code{shade_tree_qsm()} or \code{shade_tree_geoms()}.
+#'
+#' @param rasters \code{list}, single or summarised rasters from
+#' \code{shade_tree_qsm()} or \code{shade_tree_geoms()}.
+#' @param resolution \code{numeric}, spatial resolution of input rasters.
+#' @param background \code{numeric}, desired raster value of regions covered by
+#' none of the input rasters, shade is coded as 0 and light is coded as 1.
+#'
+#' @return
+#' \code{SpatRaster}, contains light / shade / in-between for each time period,
+#' the layer names indicate the respective time period.
+#'
+#' @seealso \code{\link{shade_tree_qsm}}, \code{\link{shade_tree_geoms}}, \code{\link{add_radiation}}
+#'
+#' @examples
+#' # load wood geoms
+#' file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
+#' geom_wood <- as.matrix(read.table(file_path, header = T))
+#'
+#' # load leaf geoms
+#' file_path <- system.file("extdata", "pear_leaves.txt", package="qsm2shade")
+#' geom_other <- as.matrix(read.table(file_path, header = T))
+#'
+#' # get sun position at different times
+#' timeframe <- seq(ISOdate(2020, 03, 22, 10, 0), ISOdate(2020, 03, 22, 13, 50), "10 mins")
+#' sun_position <- sun_movement(timeframe, latitude = 48.07, longitude = 7.60)
+#'
+#' # create dummy radiation data
+#' radiation <- dummy_radiation(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
+#'
+#' # calculate shade
+#' result <- shade_tree_geoms(geom_wood, sun_position = sun_position, geom_other = geom_other, transparency = 0.7)
+#'
+#' # summarize per day
+#' summary_a <- shade_summarize(result, "day", "mean")
+#'
+#' # move raster to simulate more trees
+#' summary_b <- terra::shift(summary_a, dx = 13, dy = 5)
+#' summary_c <- terra::shift(summary_a, dx = -7, dy = -3)
+#'
+#' # merge rasters
+#' summary_merged <- qsm2shade:::shade_merge(list(summary_a, summary_b, summary_c))
+#'
+#' # show results
+#' terra::plot(summary_merged)
+#'
+#' # set radiation values
+#' diffuse <- 0.7
+#' direct  <- 1.3
+#'
+#' # add radiation
+#' summary_merged_radiation <- diffuse + direct * summary_merged
+#'
+#' # show results
+#' terra::plot(summary_merged_radiation)
+#' @export
+shade_merge <- function(rasters, resolution = unique(terra::res(rasters[[1]])),
+                        background = 1) {
+
+  # create empty template
+  ext_all <- Reduce(terra::union, lapply(rasters, terra::ext))
+  template <- terra::rast(ext_all, res = resolution)
+
+  # extend rasters to same extent and set background to 1 (sun)
+  rasters <- lapply(rasters, function(r) {
+    r <- terra::extend(r, template)
+    r[is.na(r)] <- background
+    return(r)})
+
+  # stack rasters as layers
+  rasters <- terra::rast(rasters)
+
+  # multiply rasters with each other (shade = 0, light = 1)
+  rasters <- prod(rasters)
+
+  # return merged raster
+  return(rasters)
 }
 
 ################################################################################

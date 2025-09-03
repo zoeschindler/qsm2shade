@@ -41,8 +41,8 @@ ground.}
 parallel processing (\code{FALSE}) should be used.}
 }
 \value{
-\code{SpatRaster}, contains light / shade around the tree for each
-\code{sun_position}. The single rasters for the time steps are stored as
+\code{SpatRaster}, contains light / shade / in-between around the tree for
+each \code{sun_position}. The single rasters for the time steps are stored as
 layers with the timestamp as names.
 }
 \description{

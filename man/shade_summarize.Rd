@@ -64,5 +64,5 @@ total_mean <- shade_summarize(result, "total", "mean")
 terra::plot(total_mean)
 }
 \seealso{
-\code{\link{shade_tree_qsm}}
+\code{\link{shade_tree_qsm}}, \code{\link{shade_tree_geoms}}, \code{\link{add_radiation}}
 }
