@@ -31,7 +31,21 @@
 #' qsm <- qsm2r::readQSM(file_path)
 #'
 #' # classify crown cylinders
-#' classify_crown(qsm, compass_directions = 8, outside_buffer_m = 2, vertical_sections = 3)
+#' crown <- classify_crown(qsm, compass_directions = 8, outside_buffer_m = 0.5, vertical_sections = 3)
+#'
+#' # add classification to qsm
+#' qsm@cylinder$vertical <- crown[, "vertical"]
+#' qsm@cylinder$vertical[is.na(qsm@cylinder$vertical)] <- "stem"
+#'
+#' # plot qsm according to classification
+#' qsm2r::plot(qsm, col_var = "vertical")
+#'
+#' # add classification to qsm
+#' qsm@cylinder$horizontal <- crown[, "horizontal"]
+#' qsm@cylinder$horizontal[is.na(qsm@cylinder$horizontal)] <- "stem"
+#'
+#' # plot qsm according to classification
+#' qsm2r::plot(qsm, col_var = "horizontal")
 #' @export
 classify_crown <- function(qsm, compass_directions = c(0, 4, 8),
                            outside_buffer_m = 2, vertical_sections = c(0, 2, 3),
@@ -188,7 +202,7 @@ classify_crown <- function(qsm, compass_directions = c(0, 4, 8),
       ch_buff <- terra::buffer(ch_lin, -outside_buffer_m)
 
       # check if there is negative space
-      if (terra::expanse(ch_buff) > 0) {
+      if (length(ch_buff) > 0) {
 
         # get indices of points within the negative space
         pts <- terra::vect(cbind(x = cyl_center_x[lyr_idx], y = cyl_center_y[lyr_idx]), "points", crs = "EPSG:25832") # could be any EPSG in  meters

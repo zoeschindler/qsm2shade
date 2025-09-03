@@ -51,46 +51,19 @@ qsm <- qsm2r::set_location(qsm, c(0,0,0))
 distribution <- dummy_geom_distribution()
 
 # create polygons for single geom
-flower <- create_flower()
-
-# create dummy geom regression
-distribution <- dummy_geom_distribution()
-
-# add geoms
-flowers <- add_geoms(qsm, distribution, flower, geom_type = "flower")
-
-# plot qsm
-qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
-
-# plot geoms
-plot_geoms(flowers, col = "pink2")
-
-# plot shade of wood
-plot_shade_qsm(qsm)
-
-# plot shade of geoms
-plot_shade_geoms(flowers)
-
-# or:
-
-# create polygons for single geom
 leaf <- create_leaf(type = "normal", length_m = 0.1)
 
 # add geoms
 leaves <- add_geoms(qsm, distribution, leaf, geom_type = "leaf")
 
-# plot qsm
+# plot qsm & leaves
 qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
-
-# plot geoms
 plot_geoms(leaves, col = "darkolivegreen3")
 
-# plot shade of wood
+# plot shadows
 plot_shade_qsm(qsm)
-
-# plot shade of geoms
 plot_shade_geoms(leaves)
 }
 \seealso{
-\code{\link{add_geoms}}, \code{\link{plot_shade}}
+\code{\link{add_geoms}}, \code{\link{plot_shade_qsm}}
 }

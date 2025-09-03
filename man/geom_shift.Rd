@@ -21,13 +21,19 @@ the x, y and z direction.
 \examples{
 # load wood geoms
 file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
-geom_wood <- read.table(file_path, header = T
+geom_wood <- read.table(file_path, header = T)
 
 # get stem location
-location <- las_tree_location(geom_wood)
+location <- geom_tree_location(geom_wood)
+
+# display values
+summary(geom_wood)
 
 # shift stem location to 0,0,0
 geom_wood <- geom_shift(geom_wood, location)
+
+# display values
+summary(geom_wood)
 }
 \seealso{
 \code{\link{geom_tree_location}}

@@ -14,7 +14,7 @@ las_tree_location(las, lwr_height = 1.2, upr_height = 1.4)
 \item{upr_height}{\code{numeric}, upper height threshold in meters.}
 }
 \value{
-A \code{numeric} containing the \code{xy}-coordinates of the stem center.
+A \code{numeric} containing the \code{xyz}-coordinates of the stem center.
 }
 \description{
 \code{las_tree_location} extracts the coordinates of the stem of a single
@@ -28,6 +28,9 @@ las <- lidR::readLAS(file_path)
 
 # get stem location
 location <- las_tree_location(las)
+
+# display values
+print(location)
 }
 \seealso{
 \code{\link{las_tree_location}}, \code{\link{plot_ground}}

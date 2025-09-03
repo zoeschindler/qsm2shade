@@ -2,73 +2,7 @@
 # MAIN FUNCTIONS
 ################################################################################
 
-#' Plot a single geom
-#'
-#' @description
-#' \code{plot_geom} plots a single geom to be used by \code{add_geoms()}.
-#'
-#' @param geom \code{matrix}, contains matrix with IDs and coordinates.
-#' @param col \code{character}, color of the geom.
-#' @param lit \code{boolean}, whether the polygons should be lit.
-#' @param axes \code{boolean}, whether to add axes.
-#'
-#' @return
-#' \code{rgl} plot of one geom.
-#'
-#' @seealso \code{\link{add_geoms}}, \code{\link{create_flower}},
-#' \code{\link{create_leaf}},
-#'
-#' @examples
-#' # create single flower
-#' flower <- create_flower()
-#'
-#' # plot single flower
-#' plot_geom (flower, "pink2")
-#'
-#' # or:
-#'
-#' # create single leaf
-#' leaf <- create_leaf(type = "normal")
-#'
-#' # plot single leaf
-#' plot_geom (leaf, "darkolivegreen3")
-#' @export
-plot_geom <- function(geom, col = "#6D9DC5", lit = TRUE, axes = TRUE) {
-
-  # open new window
-  rgl::open3d()
-
-  # plot single geom
-  ids <- unique(geom[,1])
-  geom_rgl <- lapply(unique(geom[,1]), function(id) {
-    poly_id <- NULL
-    if (is.null(poly_id)) {
-      try({poly_id <- rgl::polygon3d(geom[geom[,1] == id,2:4],
-        plot = FALSE, coords = c(1,3))}, silent = T)
-      if (is.null(poly_id)) {
-        try({poly_id <- rgl::polygon3d(geom[geom[,1] == id,2:4],
-          plot = FALSE, coords = c(2,3))}, silent = T)
-        if (is.null(poly_id)) {
-          try({poly_id <- rgl::polygon3d(geom[geom[,1] == id,2:4],
-            plot = FALSE, coords = c(1,2))}, silent = T)
-        }
-      }
-    }
-    poly_id$material$color <- col
-    poly_id
-  })
-  rgl::shade3d(rgl::shapelist3d(geom_rgl, plot = FALSE), lit = lit)
-
-  # add axes + labels
-  if (axes) {
-    rgl::axes3d()
-    rgl::title3d(xlab = "x", ylab = "y", zlab = "z")
-  }
-}
-
-################################################################################
-
-#' Plot polygons
+#' Plot geoms
 #'
 #' @description
 #' \code{plot_geoms} plots geoms, e.g. those simulated by \code{add_geoms()}.
@@ -98,10 +32,8 @@ plot_geom <- function(geom, col = "#6D9DC5", lit = TRUE, axes = TRUE) {
 #' # add geoms
 #' leaves <- add_geoms(qsm, distribution, leaf, geom_type = "leaf")
 #'
-#' # plot qsm
+#' # plot qsm & leaves
 #' qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
-#'
-#' # plot geoms
 #' plot_geoms(leaves, col = "darkolivegreen3")
 #'
 #' # or:
@@ -112,15 +44,13 @@ plot_geom <- function(geom, col = "#6D9DC5", lit = TRUE, axes = TRUE) {
 #' # add geoms
 #' flowers <- add_geoms(qsm, distribution, flower, geom_type = "flower")
 #'
-#' # plot qsm
+#' # plot qsm & flowers
 #' qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
-#'
-#' # plot geoms
 #' plot_geoms(flowers, col = "steelblue3")
 #'
 #' # or:
 #'
-#' #' # load wood polygons
+#' # load wood polygons
 #' file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
 #' poly_wood <- read.table(file_path, header = T)
 #'
@@ -128,11 +58,11 @@ plot_geom <- function(geom, col = "#6D9DC5", lit = TRUE, axes = TRUE) {
 #' file_path <- system.file("extdata", "pear_leaves.txt", package="qsm2shade")
 #' poly_leaves <- read.table(file_path, header = T)
 #'
-#' # plot wood & leaves (takes quite some time)
+#' # plot wood & leaves
 #' plot_geoms(poly_wood, col = "salmon4", add = F)
 #' plot_geoms(poly_leaves, col = "darkolivegreen3", add = T)
 #' @export
-plot_geoms <- function(geoms, col = "#6D9DC5", add = TRUE, lit = TRUE) {
+plot_geoms <- function(geoms, col = "#6D9DC5", add = TRUE, lit = TRUE, axes = FALSE) {
 
   # remove geoms with NAs
   geoms <- na.omit(geoms)
@@ -159,6 +89,12 @@ plot_geoms <- function(geoms, col = "#6D9DC5", add = TRUE, lit = TRUE) {
     poly_id
   })
   rgl::shade3d(rgl::shapelist3d(geom_rgl, plot = FALSE), lit = lit)
+
+  # add axes + labels
+  if (axes) {
+    rgl::axes3d()
+    rgl::title3d(xlab = "x", ylab = "y", zlab = "z")
+  }
 }
 
 ################################################################################
@@ -171,7 +107,7 @@ plot_shade <- function(shade, col, add) {
   # plot shade
   shade_rgl <- lapply(unique(shade[,1]), function(i) {
     subset <- shade[shade[,1] == i,]
-    poly_i <- rgl::polygon3d(subset[,2:4], lit = FALSE,plot = FALSE)
+    poly_i <- rgl::polygon3d(subset[,2:4], lit = FALSE, plot = FALSE)
     poly_i$material$color <- col
     poly_i
   })
@@ -180,7 +116,7 @@ plot_shade <- function(shade, col, add) {
 
 ################################################################################
 
-#' Plot shadows cast by wood
+#' Plot shadows cast by QSM
 #'
 #' @description
 #' \code{plot_shade_qsm} plots shadows of a \code{QSM} object. The ground can
@@ -228,7 +164,9 @@ plot_shade_qsm <- function(qsm, sun_direction = c(0.25, 0.5, -0.75),
   sun_direction[2] <- sun_direction[2] * (-1)
 
   # get shadows
-  shade_qsm <- shade_qsm_comp(sun_direction = sun_direction, tree = tree, plane_origin = plane_origin, plane_normal = plane_normal)
+  shade_qsm <- shade_qsm_comp(
+    sun_direction = sun_direction, tree = tree, plane_origin = plane_origin,
+    plane_normal = plane_normal, plot = TRUE)
 
   # plot shadows
   plot_shade(shade_qsm[[1]], col = col, add = add)
@@ -257,7 +195,7 @@ plot_shade_qsm <- function(qsm, sun_direction = c(0.25, 0.5, -0.75),
 #' @return
 #' \code{rgl} plot of the shade.
 #'
-#' @seealso \code{\link{add_geoms}}, \code{\link{plot_shade}}
+#' @seealso \code{\link{add_geoms}}, \code{\link{plot_shade_qsm}}
 #'
 #' @examples
 #' # load qsm
@@ -272,44 +210,17 @@ plot_shade_qsm <- function(qsm, sun_direction = c(0.25, 0.5, -0.75),
 #' distribution <- dummy_geom_distribution()
 #'
 #' # create polygons for single geom
-#' flower <- create_flower()
-#'
-#' # create dummy geom regression
-#' distribution <- dummy_geom_distribution()
-#'
-#' # add geoms
-#' flowers <- add_geoms(qsm, distribution, flower, geom_type = "flower")
-#'
-#' # plot qsm
-#' qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
-#'
-#' # plot geoms
-#' plot_geoms(flowers, col = "pink2")
-#'
-#' # plot shade of wood
-#' plot_shade_qsm(qsm)
-#'
-#' # plot shade of geoms
-#' plot_shade_geoms(flowers)
-#'
-#' # or:
-#'
-#' # create polygons for single geom
 #' leaf <- create_leaf(type = "normal", length_m = 0.1)
 #'
 #' # add geoms
 #' leaves <- add_geoms(qsm, distribution, leaf, geom_type = "leaf")
 #'
-#' # plot qsm
+#' # plot qsm & leaves
 #' qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
-#'
-#' # plot geoms
 #' plot_geoms(leaves, col = "darkolivegreen3")
 #'
-#' # plot shade of wood
+#' # plot shadows
 #' plot_shade_qsm(qsm)
-#'
-#' # plot shade of geoms
 #' plot_shade_geoms(leaves)
 #' @export
 plot_shade_geoms <- function(geoms, sun_direction = c(0.25, 0.5, -0.75),
@@ -324,7 +235,9 @@ plot_shade_geoms <- function(geoms, sun_direction = c(0.25, 0.5, -0.75),
   sun_direction[2] <- sun_direction[2] * (-1)
 
   # get shadows
-  shade_geoms <- shade_geoms_comp(sun_direction = sun_direction, geoms = geoms, plane_origin = plane_origin, plane_normal = plane_normal)
+  shade_geoms <- shade_geoms_comp(
+    sun_direction = sun_direction, geoms = geoms, plane_origin = plane_origin,
+    plane_normal = plane_normal, plot = TRUE)
 
   # plot shadows
   plot_shade(shade_geoms[[1]], col = col, add = add)
@@ -373,14 +286,14 @@ plot_shade_geoms <- function(geoms, sun_direction = c(0.25, 0.5, -0.75),
 #' ground_normal <- c(0.1,0.05,1)
 #'
 #' # plot ground
-#' plot_ground(plane_origin = ground_origin, plane_normal = ground_normal)
+#' plot_ground(plane_origin = ground_origin, plane_normal = ground_normal, radius = 8)
 #'
 #' # plot shade of wood
 #' plot_shade_qsm(qsm, plane_origin = ground_origin, plane_normal = ground_normal)
 #' @export
 plot_ground <- function(plane_origin = c(0,0,0), plane_normal = c(0,0,1),
                         radius = 12, n_dir = 30L, z_offset = -0.005,
-                        col = "#B6CC8F", add = TRUE, lit = TRUE) {
+                        col = "#B6CC8F", add = TRUE, lit = FALSE) {
 
   # stop if not enough angles
   if (n_dir <= 3) stop("")

@@ -12,7 +12,7 @@ plot_ground(
   z_offset = -0.005,
   col = "#B6CC8F",
   add = TRUE,
-  lit = TRUE
+  lit = FALSE
 )
 }
 \arguments{
@@ -59,7 +59,7 @@ ground_origin <- c(0,0,0)
 ground_normal <- c(0.1,0.05,1)
 
 # plot ground
-plot_ground(plane_origin = ground_origin, plane_normal = ground_normal)
+plot_ground(plane_origin = ground_origin, plane_normal = ground_normal, radius = 8)
 
 # plot shade of wood
 plot_shade_qsm(qsm, plane_origin = ground_origin, plane_normal = ground_normal)

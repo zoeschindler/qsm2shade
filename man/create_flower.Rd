@@ -20,6 +20,12 @@ by \code{add_geoms()}.
 \examples{
 # create polygons for single flower
 flower <- create_flower()
+
+# display values
+print(flower)
+
+# plot
+plot_geoms(flower, add = FALSE, axes = TRUE)
 }
 \seealso{
 \code{\link{add_geoms}}, \code{\link{plot_geom}}

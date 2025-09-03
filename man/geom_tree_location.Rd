@@ -25,10 +25,13 @@ only one tree. The heights refer to the height over the ground.
 \examples{
 # load wood geoms
 file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
-geom_wood <- read.table(file_path, header = T
+geom_wood <- read.table(file_path, header = T)
 
 # get stem location
-location <- las_tree_location(geom_wood)
+location <- geom_tree_location(geom_wood)
+
+# display values
+print(location)
 }
 \seealso{
 \code{\link{plot_ground}}

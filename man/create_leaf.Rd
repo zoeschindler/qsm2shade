@@ -24,7 +24,13 @@ by \code{add_geoms()}.
 }
 \examples{
 # create polygon for single leaf
-leaf <- create_leaf()
+leaf <- create_leaf("3d_acer")
+
+# display values
+print(leaf)
+
+# plot
+plot_geoms(leaf, add = FALSE, axes = TRUE)
 }
 \seealso{
 \code{\link{add_geoms}}, \code{\link{plot_geom}}

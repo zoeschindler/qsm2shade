@@ -108,7 +108,7 @@ scalar_prod <- function(v, w) {
 ################################################################################
 
 # convert first list element with a geom matrix to polygons
-list_polygonize <- function(element) {
+list_polygonize <- function(element, ext) {
   return(terra::vect(element[[1]][,-4], type = "polygons"))
 }
 
@@ -196,10 +196,13 @@ prepare_qsm <- function(qsm, keep_all = FALSE) {
 #' @examples
 #' # load wood geoms
 #' file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
-#' geom_wood <- read.table(file_path, header = T
+#' geom_wood <- read.table(file_path, header = T)
 #'
 #' # get stem location
-#' location <- las_tree_location(geom_wood)
+#' location <- geom_tree_location(geom_wood)
+#'
+#' # display values
+#' print(location)
 #' @export
 geom_tree_location <- function(geom, lwr_height = 0.3, upr_height = 0.6) {
 
@@ -238,13 +241,19 @@ geom_tree_location <- function(geom, lwr_height = 0.3, upr_height = 0.6) {
 #' @examples
 #' # load wood geoms
 #' file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
-#' geom_wood <- read.table(file_path, header = T
+#' geom_wood <- read.table(file_path, header = T)
 #'
 #' # get stem location
-#' location <- las_tree_location(geom_wood)
+#' location <- geom_tree_location(geom_wood)
+#'
+#' # display values
+#' summary(geom_wood)
 #'
 #' # shift stem location to 0,0,0
 #' geom_wood <- geom_shift(geom_wood, location)
+#'
+#' # display values
+#' summary(geom_wood)
 #' @export
 geom_shift <- function(geom, offset = c(0,0,0)) {
 
@@ -271,7 +280,7 @@ geom_shift <- function(geom, offset = c(0,0,0)) {
 #' @param upr_height \code{numeric}, upper height threshold in meters.
 #'
 #' @return
-#' A \code{numeric} containing the \code{xy}-coordinates of the stem center.
+#' A \code{numeric} containing the \code{xyz}-coordinates of the stem center.
 #'
 #' @seealso \code{\link{las_tree_location}}, \code{\link{plot_ground}}
 #'
@@ -282,12 +291,15 @@ geom_shift <- function(geom, offset = c(0,0,0)) {
 #'
 #' # get stem location
 #' location <- las_tree_location(las)
+#'
+#' # display values
+#' print(location)
 #' @export
 las_tree_location <- function(las, lwr_height = 1.2, upr_height = 1.4) {
 
   # normalize point cloud
-  las <- lidR::classify_ground(las, csf())
-  las <- lidR::normalize_height(las, tin())
+  las <- lidR::classify_ground(las, lidR::csf(class_threshold = 0.2, cloth_resolution = 0.2))
+  las <- lidR::normalize_height(las, lidR::tin())
 
   # clip circle from las file
   las <- lidR::filter_poi(las, Z >= lwr_height & Z <= upr_height)
@@ -299,6 +311,7 @@ las_tree_location <- function(las, lwr_height = 1.2, upr_height = 1.4) {
   location <- c()
   location[1] <- median(las$X)
   location[2] <- median(las$Y)
+  location[3] <- mean(range(las$Zref)) - mean(c(lwr_height, upr_height))
 
   # return stem location
   return(location)
@@ -315,6 +328,8 @@ las_tree_location <- function(las, lwr_height = 1.2, upr_height = 1.4) {
 #' @param las An object of class \code{LAS}.
 #' @param location \code{numeric}, \code{xy}-coordinates.
 #' @param radius \code{numeric}, radius in meters.
+#' @param z_center \code{logical}, whether the z value in the circle center
+#' instead of the average z value should be obtained.
 #'
 #' @return
 #' A \code{numeric} containing the \code{xyz}-vector of the ground normal.
@@ -330,7 +345,7 @@ las_tree_location <- function(las, lwr_height = 1.2, upr_height = 1.4) {
 #' location <- las_tree_location(las)
 #'
 #' # calculate ground normal
-#' ground_normal <- las_ground_normal(las, location)
+#' ground <- las_plane_ground(las, location)
 #'
 #' # load qsm
 #' file_path <- system.file("extdata", "walnut.mat", package="qsm2shade")
@@ -341,34 +356,85 @@ las_tree_location <- function(las, lwr_height = 1.2, upr_height = 1.4) {
 #'
 #' # plot qsm and ground
 #' qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
-#' plot_ground(plane_origin = c(0,0,0), plane_normal = ground_normal, radius = 4, add = TRUE)
+#' plot_ground(plane_origin = c(0,0,0), plane_normal = ground$normal, radius = 4, lit = FALSE, add = TRUE)
 #' rgl::bg3d("white"); rgl::axes3d()
 #'
 #' # plot las
-#' lidR::plot(las)
-#' plot_ground(plane_origin = c(location[1]-min(las$X), location[2]-min(las$Y), min(las$Z)),
-#'             plane_normal = ground_normal, radius = 4, add = TRUE)
-#' rgl::bg3d("white"); rgl::axes3d()
+#' lidR::plot(las, axis = TRUE)
+#' plot_ground(plane_origin = c(ground$origin[1]-min(las$X), ground$origin[2]-min(las$Y), ground$origin[3]),
+#'             plane_normal = ground$normal, radius = 4, add = TRUE)
+#'             rgl::bg3d("white"); rgl::axes3d()
 #' @export
-las_ground_normal <- function(las, location = c(0,0), radius = 3) {
+las_plane_ground <- function (las, location = c(0, 0), radius = 3, z_center = FALSE) {
 
-  # clip circle from las file
+  # get ground
   las <- lidR::clip_circle(las, xcenter = location[1], ycenter = location[2], radius = radius)
-
-  # extract the ground
-  las <- lidR::classify_ground(las, csf())
+  las <- lidR::classify_ground(las, lidR::csf(class_threshold = 0.2, cloth_resolution = 0.2))
   las <- lidR::filter_ground(las)
 
   # abort if there is no ground
-  if (lidR::is.empty(las)) stop("no ground found")
+  if (lidR::is.empty(las))
+    stop("no ground found")
 
-  # extract ground plane
+  # ground normal
   ground_points <- cbind(las$X, las$Y, las$Z)
   pca <- prcomp(ground_points, center = TRUE, scale. = FALSE)
   p_normal <- pca$rotation[,3]
 
-  # return normal of the ground
-  return(p_normal)
+  # ground origin
+  dtm <- lidR::rasterize_terrain(las, res = radius/2, algorithm = lidR::tin())
+  if (z_center) {
+    z <- as.numeric(terra::extract(dtm, t(location[1:2])))
+  } else {
+    z <- mean(terra::values(dtm), na.rm = TRUE)
+  }
+
+  if(is.na(z)) {
+    message("height unknown")
+    z <- mean(values(dtm), na.rm = TRUE)
+  }
+  p_origin <- c(location[1:2], z)
+
+  # return plane origin and slope
+  p <- list("origin" = p_origin, "normal" = p_normal)
+  return(p)
+}
+
+################################################################################
+
+las_alphashape <- function(las, alpha = NULL, plot = FALSE) {
+
+  # subset data
+  xyz <- as.matrix(unique(las@data[,c("X", "Y", "Z")]))
+  xy <- unique(round(las@data[,c("X", "Y")], 2)) # for estimating crown width
+
+  # check for alpha value
+  if(is.null(alpha)) {
+    crown_width <- xy[c(chull(xy), chull(xy)[1]),] |>
+      as.matrix() |>
+      terra::vect(type = "polygons") |> # convert to polygon
+      terra::expanse() |> # get polygon area
+      (function(x) {sqrt(x / pi) * 2})() # A = pi * r^2
+    alpha_value_3d <- max(0.5, crown_width/10) # formula from TreeQSM
+  } else {
+    alpha_value_3d <- alpha
+  }
+
+  # create alpha shape
+  alphashape <- alphashape3d::ashape3d(x = xyz, alpha = alpha_value_3d)
+
+  # derive geom matrix
+  curr_geoms <- obj2geom(rgl::as.mesh3d(alphashape))
+
+  # plotting
+  if (plot) {
+    rgl::open3d()
+    rgl::plot(alphashape, add = FALSE)
+    qsm2shade::plot_geoms(curr_geoms, add = FALSE)
+  }
+
+  # return polygon geoms
+  return(curr_geoms)
 }
 
 ################################################################################

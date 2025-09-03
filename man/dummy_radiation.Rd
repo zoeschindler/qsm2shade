@@ -22,12 +22,15 @@ dummy_radiation(
 }
 \description{
 \code{dummy_radiation} creates dummy radiation data to be used
-by \code{shade_tree()}.
+by \code{add_radiation()}.
 }
 \examples{
 # create dummy radiation data
 radiation <- dummy_radiation(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
+
+# display values
+head(radiation)
 }
 \seealso{
-\code{\link{shade_tree}}
+\code{\link{add_radiation}}
 }

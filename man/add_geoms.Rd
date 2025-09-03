@@ -65,7 +65,10 @@ flower <- create_flower()
 distribution <- dummy_geom_distribution()
 
 # add geoms
-add_geoms(qsm, distribution, flower, geom_type = "flower")
+flowers <- add_geoms(qsm, distribution, flower, geom_type = "flower")
+
+# display values
+head(flowers)
 
 # with crown classification:
 
@@ -73,10 +76,13 @@ add_geoms(qsm, distribution, flower, geom_type = "flower")
 classes <- classify_crown(qsm, compass_directions = 8, outside_buffer_m = 2, vertical_sections = 3)
 
 # create dummy geom regression
-distribution_classes <- dummy_geom_distribution(classification = TRUE)
+distribution_classes <- dummy_geom_distribution(cylinder_classes = TRUE)
 
 # add geoms
-add_geoms(qsm, distribution_classes, flower, geom_type = "flower", cylinder_classes = classes)
+flowers <- add_geoms(qsm, distribution_classes, flower, geom_type = "flower", cylinder_classes = classes)
+
+# display values
+head(flowers)
 }
 \seealso{
 \code{\link{dummy_geom_distribution}},

@@ -19,6 +19,12 @@
 #' @examples
 #' # create polygons for single flower
 #' flower <- create_flower()
+#'
+#' # display values
+#' print(flower)
+#'
+#' # plot
+#' plot_geoms(flower, add = FALSE, axes = TRUE)
 #' @export
 create_flower <- function(radius_m = 0.01) {
 
@@ -98,7 +104,13 @@ create_flower <- function(radius_m = 0.01) {
 #'
 #' @examples
 #' # create polygon for single leaf
-#' leaf <- create_leaf()
+#' leaf <- create_leaf("3d_acer")
+#'
+#' # display values
+#' print(leaf)
+#'
+#' # plot
+#' plot_geoms(leaf, add = FALSE, axes = TRUE)
 #' @export
 create_leaf <- function(type = c("normal", "ginkgo", "walnut", "3d_up", "3d_down", "3d_acer"), length_m = 0.01) {
 
@@ -111,21 +123,21 @@ create_leaf <- function(type = c("normal", "ginkgo", "walnut", "3d_up", "3d_down
   if (type == "normal") {
     leaf_geom <- data.frame(
       "id" = 1,
-      "x" = c(0, 3, 7, 10, 7, 3, 0),
-      "y" = c(0, 4, 2, 0, -2, -4, 0),
-      "z" = c(0, 0, 0, 0, 0, 0, 0))
+      "x" = c(0,3,7,10,7,3,0),
+      "y" = c(0,4,2,0,-2,-4,0),
+      "z" = rep(0,7))
   } else if (type == "ginkgo") {
     leaf_geom <- data.frame(
       "id" = 1,
-      "x" = c(0, 5, 8, 9, 10, 8, 10, 9, 8, 5, 0),
-      "y" = c(0, 5, 6, 4, 2, 0, -2, -4, -6, -5, 0),
-      "z" = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+      "x" = c(0,5,8,9,10,8,10,9,8,5,0),
+      "y" = c(0,5,6,4,2,0,-2,-4,-6,-5,0),
+      "z" = rep(0,11))
   } else if (type == "walnut") {
     leaf_geom <- data.frame(
       "id" = 1,
-      "x" = c(0, 1, 3, 2.5, 0.2, 3.0, 4, 6, 5.5, 3.1, 5.5, 7, 10,  7,  5.5,  3.1,  5.5,  6,  4,  3.0,  0.2,  2.5,  3,  1, 0),
-      "y" = c(0, 2, 3, 1.0, 0.1, 0.1, 2, 3, 1.0, 0.1, 0.1, 1, 00, -1, -0.1, -0.1, -1.0, -3, -2, -0.1, -0.1, -1.0, -3, -2, 0),
-      "z" = c(0, 0, 0, 0.0, 0.0, 0.0, 0, 0, 0.0, 0.0, 0.0, 0, 00,  0,  0.0,  0.0,  0.0,  0,  0,  0.0,  0.0,  0.0,  0,  0, 0))
+      "x" = c(0,1,3,2.5,0.2,3,4,6,5.5,3.1,5.5,7,10,7,5.5,3.1,5.5,6,4,3,0.2,2.5,3,1,0),
+      "y" = c(0,2,3,1.0,0.1,0.1,2,3,1.0,0.1,0.1,1,0,-1,-0.1,-0.1,-1.0,-3,-2,-0.1,-0.1,-1.0,-3,-2,0),
+      "z" = rep(0, 25))
   } else if (type == "3d_up") {
     # thanks to Nora for the polygon <3
     leaf_geom <- data.frame(
@@ -176,6 +188,9 @@ create_leaf <- function(type = c("normal", "ginkgo", "walnut", "3d_up", "3d_down
 #' @examples
 #' # create dummy geom regression
 #' distribution <- dummy_geom_distribution()
+#'
+#' # display values
+#' print(distribution)
 #' @export
 dummy_geom_distribution <- function(cylinder_classes = FALSE) {
 
@@ -256,7 +271,10 @@ dummy_geom_distribution <- function(cylinder_classes = FALSE) {
 #' distribution <- dummy_geom_distribution()
 #'
 #' # add geoms
-#' add_geoms(qsm, distribution, flower, geom_type = "flower")
+#' flowers <- add_geoms(qsm, distribution, flower, geom_type = "flower")
+#'
+#' # display values
+#' head(flowers)
 #'
 #' # with crown classification:
 #'
@@ -264,10 +282,13 @@ dummy_geom_distribution <- function(cylinder_classes = FALSE) {
 #' classes <- classify_crown(qsm, compass_directions = 8, outside_buffer_m = 2, vertical_sections = 3)
 #'
 #' # create dummy geom regression
-#' distribution_classes <- dummy_geom_distribution(classification = TRUE)
+#' distribution_classes <- dummy_geom_distribution(cylinder_classes = TRUE)
 #'
 #' # add geoms
-#' add_geoms(qsm, distribution_classes, flower, geom_type = "flower", cylinder_classes = classes)
+#' flowers <- add_geoms(qsm, distribution_classes, flower, geom_type = "flower", cylinder_classes = classes)
+#'
+#' # display values
+#' head(flowers)
 #' @export
 #' @importFrom data.table set
 add_geoms <- function(qsm, geom_distribution, geom, stem_len = 0.01,

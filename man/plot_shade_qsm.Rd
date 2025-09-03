@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotting.R
 \name{plot_shade_qsm}
 \alias{plot_shade_qsm}
-\title{Plot shadows cast by wood}
+\title{Plot shadows cast by QSM}
 \usage{
 plot_shade_qsm(
   qsm,

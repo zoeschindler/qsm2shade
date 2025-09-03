@@ -42,7 +42,21 @@ file_path <- system.file("extdata", "walnut.mat", package="qsm2shade")
 qsm <- qsm2r::readQSM(file_path)
 
 # classify crown cylinders
-classify_crown(qsm, compass_directions = 8, outside_buffer_m = 2, vertical_sections = 3)
+crown <- classify_crown(qsm, compass_directions = 8, outside_buffer_m = 0.5, vertical_sections = 3)
+
+# add classification to qsm
+qsm@cylinder$vertical <- crown[, "vertical"]
+qsm@cylinder$vertical[is.na(qsm@cylinder$vertical)] <- "stem"
+
+# plot qsm according to classification
+qsm2r::plot(qsm, col_var = "vertical")
+
+# add classification to qsm
+qsm@cylinder$horizontal <- crown[, "horizontal"]
+qsm@cylinder$horizontal[is.na(qsm@cylinder$horizontal)] <- "stem"
+
+# plot qsm according to classification
+qsm2r::plot(qsm, col_var = "horizontal")
 }
 \seealso{
 \code{\link{add_geoms}}

@@ -7,15 +7,19 @@
 shade_summarize(
   radiation_grid,
   period = c("hour", "day", "month", "year", "total"),
+  type = c("sum", "mean", "min", "max"),
   na.rm = TRUE
 )
 }
 \arguments{
 \item{radiation_grid}{\code{SpatRaster}, stacked set of shade rasters from
-\code{shade_tree()}.}
+\code{shade_tree_qsm()} or \code{shade_tree_geoms()}.}
 
 \item{period}{\code{character}, length of summary period, either \code{"hour"},
 \code{"day"}, \code{"month"}, \code{"year"} or \code{"total"}.}
+
+\item{type}{\code{character}, type of summary statistic, either \code{"sum"},
+\code{"mean"}, \code{"min"} or \code{"max"}.}
 
 \item{na.rm}{\code{boolean}, whether NAs should be removed prior to the
 calculation.}
@@ -25,29 +29,40 @@ calculation.}
 layer names indicate the respective time period.
 }
 \description{
-\code{shade_summarize} summarizes the rasters produced by \code{shade_tree()}
-in variable time periods.
+\code{shade_summarize} summarizes the rasters produced by
+\code{shade_tree_qsm()} or \code{shade_tree_geoms()} in variable time
+periods.
 }
 \examples{
 # load qsm
 file_path <- system.file("extdata", "walnut.mat", package="qsm2shade")
 qsm <- qsm2r::readQSM(file_path)
 
-# get son position at different times
-sun_position <- sun_movement(ISOdate(2020, 03, 22, 0, 0), ISOdate(2020, 03, 23, 23, 50), "10 mins", lat = 48.07, lon = 7.60)
+# shift qsm to origin
+# (shade is always projected to z = 0)
+qsm <- qsm2r::set_location(qsm, c(0,0,0))
+
+# get sun position at different times
+timeframe <- seq(ISOdate(2020, 03, 22, 0, 0), ISOdate(2020, 03, 22, 23, 50), "10 mins")
+sun_position <- sun_movement(timeframe, latitude = 48.07, longitude = 7.60)
+
+# calculate shade
+result <- shade_tree_qsm(qsm, sun_position = sun_position)
 
 # create dummy radiation data
 radiation <- dummy_radiation(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
 
-# calculate shade
-result <- shade_tree(qsm, sun_position = sun_position, radiation = radiation)
+# add radiation data
+result <- add_radiation(result, radiation)
 
-# summarize per day
-result_daily <- shade_summarize(result, "day")
+# summarize per day, sum
+daily_sum <- shade_summarize(result, "day", "sum")
+terra::plot(daily_sum)
 
-# plot daily shade
-terra::plot(result_daily)
+# summarize everything, average
+total_mean <- shade_summarize(result, "total", "mean")
+terra::plot(total_mean)
 }
 \seealso{
-\code{\link{shade_tree}}
+\code{\link{shade_tree_qsm}}
 }

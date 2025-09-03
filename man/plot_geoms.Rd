@@ -2,9 +2,9 @@
 % Please edit documentation in R/plotting.R
 \name{plot_geoms}
 \alias{plot_geoms}
-\title{Plot polygons}
+\title{Plot geoms}
 \usage{
-plot_geoms(geoms, col = "#6D9DC5", add = TRUE, lit = TRUE)
+plot_geoms(geoms, col = "#6D9DC5", add = TRUE, lit = TRUE, axes = FALSE)
 }
 \arguments{
 \item{geoms}{\code{matrix}, contains coordinates of simulated leaves /
@@ -36,10 +36,8 @@ leaf <- create_leaf(type = "normal", length_m = 0.1)
 # add geoms
 leaves <- add_geoms(qsm, distribution, leaf, geom_type = "leaf")
 
-# plot qsm
+# plot qsm & leaves
 qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
-
-# plot geoms
 plot_geoms(leaves, col = "darkolivegreen3")
 
 # or:
@@ -50,15 +48,13 @@ flower <- create_flower(radius_m = 0.02)
 # add geoms
 flowers <- add_geoms(qsm, distribution, flower, geom_type = "flower")
 
-# plot qsm
+# plot qsm & flowers
 qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
-
-# plot geoms
 plot_geoms(flowers, col = "steelblue3")
 
 # or:
 
-#' # load wood polygons
+# load wood polygons
 file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
 poly_wood <- read.table(file_path, header = T)
 
@@ -66,7 +62,7 @@ poly_wood <- read.table(file_path, header = T)
 file_path <- system.file("extdata", "pear_leaves.txt", package="qsm2shade")
 poly_leaves <- read.table(file_path, header = T)
 
-# plot wood & leaves (takes quite some time)
+# plot wood & leaves
 plot_geoms(poly_wood, col = "salmon4", add = F)
 plot_geoms(poly_leaves, col = "darkolivegreen3", add = T)
 }

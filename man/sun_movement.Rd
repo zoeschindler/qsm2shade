@@ -20,13 +20,16 @@ sun_movement(timeframe, latitude, longitude, timezone = 0)
 }
 \description{
 \code{sun_movement} calculate the direction of the sunlight over time to be
-used by \code{shade_tree()}.
+used by \code{shade_tree_qsm()} or \code{shade_tree_geoms()}..
 }
 \examples{
 # get sun position at different times
 timeframe <- seq(ISOdate(2020, 03, 22, 0, 0), ISOdate(2020, 03, 22, 23, 50), "10 mins")
 sun_position <- sun_movement(timeframe, latitude = 48.07, longitude = 7.60)
+
+# display values
+head(sun_position)
 }
 \seealso{
-\code{\link{shade_tree}}
+\code{\link{shade_tree_qsm}}
 }

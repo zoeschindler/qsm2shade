@@ -21,6 +21,9 @@ directions, 2 horizontal sections and 3 vertical sections are used.
 \examples{
 # create dummy geom regression
 distribution <- dummy_geom_distribution()
+
+# display values
+print(distribution)
 }
 \seealso{
 \code{\link{add_geoms}}
