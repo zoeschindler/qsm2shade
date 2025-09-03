@@ -891,8 +891,9 @@ shade_summarize <- function(radiation_grid, period = c("hour", "day", "month", "
 #' Merge shade of multiple trees
 #'
 #' @description
-#' \code{shade_merge} merges single or summarised rasters produced by
-#' \code{shade_tree_qsm()} or \code{shade_tree_geoms()}.
+#' \code{shade_merge} merges rasters produced by
+#' \code{shade_tree_qsm()} or \code{shade_tree_geoms()}, but works only for a
+#' single point in time.
 #'
 #' @param rasters \code{list}, single or summarised rasters from
 #' \code{shade_tree_qsm()} or \code{shade_tree_geoms()}.
@@ -937,16 +938,6 @@ shade_summarize <- function(radiation_grid, period = c("hour", "day", "month", "
 #'
 #' # show results
 #' terra::plot(summary_merged)
-#'
-#' # set radiation values
-#' diffuse <- 0.7
-#' direct  <- 1.3
-#'
-#' # add radiation
-#' summary_merged_radiation <- diffuse + direct * summary_merged
-#'
-#' # show results
-#' terra::plot(summary_merged_radiation)
 #' @export
 shade_merge <- function(rasters, resolution = unique(terra::res(rasters[[1]])),
                         background = 1) {
