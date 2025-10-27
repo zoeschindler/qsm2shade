@@ -727,7 +727,7 @@ add_radiation <- function(raster, radiation) {
     # calculate radiation
     curr_rad  <- radiation[radiation$timestamp == lubridate::ceiling_date(timesteps[idx], paste(rad_interval, "aseconds")),]
     curr_rast <- raster[[idx]]
-    curr_rast<- curr_rad[,"diffuse_energy_per_area"] + curr_rad[,"direct_energy_per_area"] * curr_rast
+    curr_rast <- as.numeric(curr_rad[,"diffuse_energy_per_area"]) + curr_rad[,"direct_energy_per_area"] * curr_rast
     return(curr_rast)
   })
 
@@ -972,3 +972,4 @@ shade_merge <- function(rasters, resolution = unique(terra::res(rasters[[1]])),
 }
 
 ################################################################################
+
