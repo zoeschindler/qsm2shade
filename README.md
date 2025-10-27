@@ -1,5 +1,7 @@
 # qsm2shade: Analyze shade cast of QSMs
 
+<a href="https://doi.org/10.5281/zenodo.14871359"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.14871359.svg" alt="DOI"></a>
+
 ## Description <img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/logo.png" align="right" width="290/"/>
 
 `qsm2shade` is an R package to calculate the shadow casting of QSMs (quantitative structure models) created in Matlab using <a href = "https://github.com/InverseTampere/TreeQSM">TreeQSM</a>. The package uses `QSM` objects read in using <a href = "https://github.com/zoeschindler/qsm2r">qsm2r</a>. The shade of the tree for one sun position can be plotted using `plot_shade_qsm()`. To enable shade estimation of trees carrying leaves or flowers, those can be simulated using `add_geoms()`. To plot added geoms and their shade, use `plot_geoms()` and `plot_shade_geoms()`. To simulate the shading of a tree with or without added geoms over time, the function `shade_tree_qsm()` can be used. To increase efficiency, the simulation of the shade can be executed using parallel processing. The used time steps should be one hour or less, the radiation data should be given in hourly steps and the energy unit should correspond to the chosen time steps and raster resolution.
@@ -8,7 +10,7 @@
 
 ### Code author
 
-<a href = "https://orcid.org/0000-0003-2972-1920">Zoe Schindler</a>, Chair of Forest Growth and Dendroecology, University of Freiburg
+<a href = "https://orcid.org/0000-0003-2972-1920">Zoe Schindler</a> & <a href = "https://orcid.org/0000-0002-1191-5770">Elena Larysch</a>, Chair of Forest Growth and Dendroecology, University of Freiburg
 
 ### Presented & validated in
 
@@ -192,3 +194,4 @@ shade_tree_qsm(qsm, sun_position = sun_position, empty_grid = template) |>
 <img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_plot_shade_wood.png" align="center" width="800/"/>
 
 <img src="https://github.com/zoeschindler/qsm2shade/blob/master/inst/figures/example_shade_tree.png" align="center" width="800/"/>
+
