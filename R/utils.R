@@ -429,7 +429,6 @@ las_alphashape <- function(las, alpha = NULL, plot = FALSE) {
   # plotting
   if (plot) {
     rgl::open3d()
-    rgl::plot(alphashape, add = FALSE)
     qsm2shade::plot_geoms(curr_geoms, add = FALSE)
   }
 
@@ -438,3 +437,4 @@ las_alphashape <- function(las, alpha = NULL, plot = FALSE) {
 }
 
 ################################################################################
+
