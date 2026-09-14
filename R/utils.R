@@ -437,7 +437,6 @@ las_alphashape <- function(las, alpha = NULL, plot = FALSE) {
 
 ################################################################################
 
-<<<<<<< HEAD
 plot_alphashape <- function(geoms, col = "#86A84D", add = TRUE, lit = TRUE, axes = FALSE) {
 
   # remove geoms with NAs
@@ -471,6 +470,3 @@ plot_alphashape <- function(geoms, col = "#86A84D", add = TRUE, lit = TRUE, axes
 }
 
 ################################################################################
-=======
-
->>>>>>> a6ccf6749655faa677872bc57c47dc6b7533dc12
