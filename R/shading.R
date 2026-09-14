@@ -45,6 +45,31 @@ sun_movement <- function(timeframe, latitude, longitude, timezone = 0) {
   return(position)
 }
 
+
+# timeframe = seq(ISOdate(2020, 03, 22, 0, 0), ISOdate(2020, 03, 22, 23, 50), "10 mins")
+# latitude = 48.07
+# longitude = 7.60
+# library(oce)
+#
+# sun_movement_oce <- function(timeframe, latitude, longitude, timezone = 0) {
+#
+#   # prepare data
+#   julianday <- insol::JD(timeframe)
+#
+#   # calculates unit vector in the sun direction from the observer position
+#   position_xyz <- as.data.frame(insol::sunvector(jd = julianday, latitude = latitude, longitude = longitude, timezone = timezone))
+#
+#   # calculates azimuth and zenith angles of the sun
+#   position_az <- as.data.frame(insol::sunpos(position_xyz))
+#
+#   # combine data
+#   position <- cbind(position_xyz, position_az, julianday, timeframe,
+#                     day = position_az$zenith <= 90)
+#
+#   # return positions
+#   return(position)
+# }
+
 ################################################################################
 
 # calculate wood shadow polygons
