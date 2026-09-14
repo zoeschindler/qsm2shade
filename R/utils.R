@@ -438,3 +438,37 @@ las_alphashape <- function(las, alpha = NULL, plot = FALSE) {
 }
 
 ################################################################################
+
+plot_alphashape <- function(geoms, col = "#86A84D", add = TRUE, lit = TRUE, axes = FALSE) {
+
+  # remove geoms with NAs
+  geoms <- na.omit(geoms)
+
+  # open new window
+  if (!add) rgl::open3d()
+
+  # load coordinates
+  geoms$x <- geoms$x - min(geoms$x)
+  geoms$y <- geoms$y - min(geoms$y)
+  geoms$z <- geoms$z - min(geoms$z)
+
+  # loop through IDs
+  polys <- list()
+  for (id in unique(geoms$id)) {
+    sub <- geoms[geoms$id == id,]
+    sub <- sub[,c("x", "y", "z")]
+    poly <- rgl::as.mesh3d(sub, col=col)
+    polys[[length(polys) + 1]] <- poly
+  }
+
+  # plot all polygons
+  rgl::shade3d(rgl::shapelist3d(polys, plot = FALSE), lit = lit)
+
+  # add axes + labels
+  if (axes) {
+    rgl::axes3d()
+    rgl::title3d(xlab = "x", ylab = "y", zlab = "z")
+  }
+}
+
+################################################################################
