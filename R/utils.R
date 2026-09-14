@@ -402,7 +402,7 @@ las_plane_ground <- function (las, location = c(0, 0), radius = 3, z_center = FA
 
 ################################################################################
 
-las_alphashape <- function(las, alpha = NULL, plot = FALSE) {
+las_alphashape <- function(las, alpha = NULL) {
 
   # subset data
   xyz <- as.matrix(unique(las@data[,c("X", "Y", "Z")]))
@@ -426,47 +426,8 @@ las_alphashape <- function(las, alpha = NULL, plot = FALSE) {
   # derive geom matrix
   curr_geoms <- obj2geom(rgl::as.mesh3d(alphashape))
 
-  # plotting
-  if (plot) {
-    qsm2shade::plot_geoms(curr_geoms, add = FALSE)
-  }
-
   # return polygon geoms
   return(curr_geoms)
-}
-
-################################################################################
-
-plot_alphashape <- function(geoms, col = "#86A84D", add = TRUE, lit = TRUE, axes = FALSE) {
-
-  # remove geoms with NAs
-  geoms <- na.omit(geoms)
-
-  # open new window
-  if (!add) rgl::open3d()
-
-  # load coordinates
-  geoms$x <- geoms$x - min(geoms$x)
-  geoms$y <- geoms$y - min(geoms$y)
-  geoms$z <- geoms$z - min(geoms$z)
-
-  # loop through IDs
-  polys <- list()
-  for (id in unique(geoms$id)) {
-    sub <- geoms[geoms$id == id,]
-    sub <- sub[,c("x", "y", "z")]
-    poly <- rgl::as.mesh3d(sub, col=col)
-    polys[[length(polys) + 1]] <- poly
-  }
-
-  # plot all polygons
-  rgl::shade3d(rgl::shapelist3d(polys, plot = FALSE), lit = lit)
-
-  # add axes + labels
-  if (axes) {
-    rgl::axes3d()
-    rgl::title3d(xlab = "x", ylab = "y", zlab = "z")
-  }
 }
 
 ################################################################################
