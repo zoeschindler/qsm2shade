@@ -14,7 +14,7 @@ VignetteBuilder: knitr
 Imports:
 	compiler,
 	plyr,
-	insol,
+	oce,
 	terra,
 	lubridate,
 	data.table,
@@ -23,5 +23,5 @@ Imports:
 	lidR,
 	alphashape3d
 URL: https://github.com/zoeschindler/qsm2shade
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 TreeQSMNote: 2.4.1

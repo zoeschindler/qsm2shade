@@ -28,30 +28,29 @@
 #' @export
 sun_movement <- function(timeframe, latitude, longitude, timezone = 0) {
 
-  # prepare data
-  julianday <- insol::JD(timeframe)
+  # get sun angles
+  pos <- oce::sunAngle(timeframe, latitude = latitude, longitude = longitude)
 
-  # calculates unit vector in the sun direction from the observer position
-  position_xyz <- as.data.frame(insol::sunvector(jd = julianday, latitude = latitude, longitude = longitude, timezone = timezone))
+  # extract azimuth & zenith
+  pos_az <- data.frame(
+    "azimuth" = pos$azimuth,
+    "zenith" = -pos$altitude+90)
 
-  # calculates azimuth and zenith angles of the sun
-  position_az <- as.data.frame(insol::sunpos(position_xyz))
+  # calculate sun vector
+  pos_xyz <- data.frame(
+    "svx" = sin(qsm2shade:::deg2rad(pos$azimuth)) * cos(qsm2shade:::deg2rad(pos$altitude)),
+    "svy" = -(cos(qsm2shade:::deg2rad(pos$azimuth)) * cos(qsm2shade:::deg2rad(pos$altitude))),
+    "svz" = sin(qsm2shade:::deg2rad(pos$altitude)))
 
   # combine data
-  position <- cbind(position_xyz, position_az, julianday, timeframe,
-                    day = position_az$zenith <= 90)
+  position <- cbind(pos_xyz, pos_az, timeframe, day = abs(pos_az$zenith) <= 90)
 
   # return positions
   return(position)
 }
 
-
-# timeframe = seq(ISOdate(2020, 03, 22, 0, 0), ISOdate(2020, 03, 22, 23, 50), "10 mins")
-# latitude = 48.07
-# longitude = 7.60
-# library(oce)
-#
-# sun_movement_oce <- function(timeframe, latitude, longitude, timezone = 0) {
+# old insol version
+# sun_movement <- function(timeframe, latitude, longitude, timezone = 0) {
 #
 #   # prepare data
 #   julianday <- insol::JD(timeframe)
