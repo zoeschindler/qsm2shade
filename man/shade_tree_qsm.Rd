@@ -23,6 +23,9 @@ shade_tree_qsm(
 
 \item{sun_position}{\code{data.frame}, sunlight direction over the time.}
 
+\item{geom_other}{\code{matrix}, contains coordinates of simulated leaves /
+flowers.}
+
 \item{empty_grid}{\code{SpatRaster}, with target shade raster location and
 spatial resolution.}
 
@@ -36,9 +39,6 @@ ground.}
 
 \item{sequential}{\code{boolean}, whether sequential (\code{TRUE}) or
 parallel processing (\code{FALSE}) should be used.}
-
-\item{geoms}{\code{matrix}, contains coordinates of simulated leaves /
-flowers.}
 }
 \value{
 \code{SpatRaster}, contains light / shade / in-between around the tree for

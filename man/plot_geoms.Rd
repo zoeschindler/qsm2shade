@@ -15,6 +15,8 @@ flowers.}
 \item{add}{\code{boolean}, add the plot to current active \code{rgl} plot.}
 
 \item{lit}{\code{boolean}, whether the polygons should be lit.}
+
+\item{axes}{\code{boolean}, whether the axes should be labelled.}
 }
 \value{
 \code{rgl} plot of all geoms.
@@ -56,15 +58,15 @@ plot_geoms(flowers, col = "steelblue3")
 
 # load wood polygons
 file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
-poly_wood <- read.table(file_path, header = T)
+poly_wood <- read.table(file_path, header = TRUE)
 
 # load leaf polygons
 file_path <- system.file("extdata", "pear_leaves.txt", package="qsm2shade")
-poly_leaves <- read.table(file_path, header = T)
+poly_leaves <- read.table(file_path, header = TRUE)
 
 # plot wood & leaves
-plot_geoms(poly_wood, col = "salmon4", add = F)
-plot_geoms(poly_leaves, col = "darkolivegreen3", add = T)
+plot_geoms(poly_wood, col = "salmon4", add = FALSE)
+plot_geoms(poly_leaves, col = "darkolivegreen3", add = TRUE)
 }
 \seealso{
 \code{\link{add_geoms}}, \code{\link{plot_shade_geoms}}

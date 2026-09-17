@@ -38,9 +38,9 @@ sun_movement <- function(timeframe, latitude, longitude, timezone = 0) {
 
   # calculate sun vector
   pos_xyz <- data.frame(
-    "svx" = sin(qsm2shade:::deg2rad(pos$azimuth)) * cos(qsm2shade:::deg2rad(pos$altitude)),
-    "svy" = -(cos(qsm2shade:::deg2rad(pos$azimuth)) * cos(qsm2shade:::deg2rad(pos$altitude))),
-    "svz" = sin(qsm2shade:::deg2rad(pos$altitude)))
+    "svx" = sin(deg2rad(pos$azimuth)) * cos(deg2rad(pos$altitude)),
+    "svy" = -(cos(deg2rad(pos$azimuth)) * cos(deg2rad(pos$altitude))),
+    "svz" = sin(deg2rad(pos$altitude)))
 
   # combine data
   position <- cbind(pos_xyz, pos_az, timeframe, day = abs(pos_az$zenith) <= 90)
@@ -217,7 +217,7 @@ shade_geoms_comp <- compiler::cmpfun(shade_geoms)
 #'
 #' @param qsm An object of class \code{QSM}.
 #' @param sun_position \code{data.frame}, sunlight direction over the time.
-#' @param geoms \code{matrix}, contains coordinates of simulated leaves /
+#' @param geom_other \code{matrix}, contains coordinates of simulated leaves /
 #' flowers.
 #' @param empty_grid \code{SpatRaster}, with target shade raster location and
 #' spatial resolution.
@@ -278,6 +278,9 @@ shade_geoms_comp <- compiler::cmpfun(shade_geoms)
 #' # plot daily shade
 #' terra::plot(result_daily)
 #' @export
+#' @importFrom grDevices chull
+#' @importFrom stats median
+#' @importFrom compiler cmpfun
 shade_tree_qsm <- function(
     qsm, sun_position, geom_other = NULL,
     empty_grid = terra::rast(
@@ -480,24 +483,28 @@ shade_tree_qsm <- function(
 #' @examples
 #' # load wood geoms
 #' file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
-#' geom_wood <- as.matrix(read.table(file_path, header = T))
+#' geom_wood <- as.matrix(read.table(file_path, header = TRUE))
 #'
 #' # load leaf geoms
 #' file_path <- system.file("extdata", "pear_leaves.txt", package="qsm2shade")
-#' geom_other <- as.matrix(read.table(file_path, header = T))
+#' geom_other <- as.matrix(read.table(file_path, header = TRUE))
 #'
 #' # get sun position at different times
 #' timeframe <- seq(ISOdate(2020, 03, 22, 0, 0), ISOdate(2020, 03, 22, 23, 50), "10 mins")
 #' sun_position <- sun_movement(timeframe, latitude = 48.07, longitude = 7.60)
 #'
 #' # create dummy radiation data
-#' radiation <- dummy_radiation(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
+#' radiation <- dummy_radiation(
+#'   ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
 #'
 #' # calculate shade
-#' result <- shade_tree_geoms(geom_wood, sun_position = sun_position, geom_other = geom_other, transparency = 0.7)
+#' result <- shade_tree_geoms(
+#'   geom_wood, sun_position = sun_position, geom_other = geom_other,
+#'   transparency = 0.7)
 #'
 #' # create dummy radiation data
-#' radiation <- dummy_radiation(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
+#' radiation <- dummy_radiation(
+#'   ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
 #'
 #' # add radiation data
 #' result <- add_radiation(result, radiation)
@@ -508,6 +515,8 @@ shade_tree_qsm <- function(
 #' # plot daily shade
 #' terra::plot(result_daily)
 #' @export
+#' @importFrom stats median
+#' @importFrom compiler cmpfun
 shade_tree_geoms <- function(
     geom_wood, sun_position, geom_other = NULL,
     empty_grid = terra::rast(
@@ -691,21 +700,25 @@ shade_tree_geoms <- function(
 #' @examples
 #' # load wood geoms
 #' file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
-#' geom_wood <- as.matrix(read.table(file_path, header = T))
+#' geom_wood <- as.matrix(read.table(file_path, header = TRUE))
 #'
 #' # load leaf geoms
 #' file_path <- system.file("extdata", "pear_leaves.txt", package="qsm2shade")
-#' geom_other <- as.matrix(read.table(file_path, header = T))
+#' geom_other <- as.matrix(read.table(file_path, header = TRUE))
 #'
 #' # get sun position at different times
-#' timeframe <- seq(ISOdate(2020, 03, 22, 0, 0), ISOdate(2020, 03, 22, 23, 50), "10 mins")
+#' timeframe <- seq(
+#'   ISOdate(2020, 03, 22, 0, 0), ISOdate(2020, 03, 22, 23, 50), "10 mins")
 #' sun_position <- sun_movement(timeframe, latitude = 48.07, longitude = 7.60)
 #'
 #' # calculate shade
-#' result <- shade_tree_geoms(geom_wood, sun_position = sun_position, geom_other = geom_other, transparency = 0.7)
+#' result <- shade_tree_geoms(
+#'   geom_wood, sun_position = sun_position, geom_other = geom_other,
+#'   transparency = 0.7)
 #'
 #' # create dummy radiation data
-#' radiation <- dummy_radiation(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
+#' radiation <- dummy_radiation(
+#'   ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
 #'
 #' # add radiation data to shade polygons
 #' result <- add_radiation(result, radiation)
@@ -934,18 +947,20 @@ shade_summarize <- function(radiation_grid, period = c("hour", "day", "month", "
 #' @examples
 #' # load wood geoms
 #' file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
-#' geom_wood <- as.matrix(read.table(file_path, header = T))
+#' geom_wood <- as.matrix(read.table(file_path, header = TRUE))
 #'
 #' # load leaf geoms
 #' file_path <- system.file("extdata", "pear_leaves.txt", package="qsm2shade")
-#' geom_other <- as.matrix(read.table(file_path, header = T))
+#' geom_other <- as.matrix(read.table(file_path, header = TRUE))
 #'
 #' # get sun position at different times
 #' timeframe <- seq(ISOdate(2020, 03, 22, 10, 0), ISOdate(2020, 03, 22, 10, 0), "10 mins")
 #' sun_position <- sun_movement(timeframe, latitude = 48.07, longitude = 7.60)
 #'
 #' # calculate shade
-#' result <- shade_tree_geoms(geom_wood, sun_position = sun_position, geom_other = geom_other, transparency = 0.7)
+#' result <- shade_tree_geoms(
+#'   geom_wood, sun_position = sun_position, geom_other = geom_other,
+#'   transparency = 0.7)
 #'
 #' # move raster to simulate more trees
 #' result_add_1 <- terra::shift(result, dx = 14, dy = 4)
@@ -953,13 +968,15 @@ shade_summarize <- function(radiation_grid, period = c("hour", "day", "month", "
 #' result_add_3 <- terra::shift(result, dx = -8, dy = -3)
 #'
 #' # merge rasters
-#' result_merged <- shade_merge(list(result, result_add_1, result_add_2, result_add_3))
+#' result_merged <- shade_merge(
+#'   list(result, result_add_1, result_add_2, result_add_3))
 #'
 #' # show results
 #' terra::plot(result_merged)
 #'
 #' # create dummy radiation data
-#' radiation <- dummy_radiation(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
+#' radiation <- dummy_radiation(
+#'   ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
 #'
 #' # add radiation data
 #' result_merged <- add_radiation(result_merged, radiation)

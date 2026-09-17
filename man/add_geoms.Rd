@@ -73,13 +73,16 @@ head(flowers)
 # with crown classification:
 
 # classify crown cylinders
-classes <- classify_crown(qsm, compass_directions = 8, outside_buffer_m = 2, vertical_sections = 3)
+classes <- classify_crown(
+  qsm, compass_directions = 8, outside_buffer_m = 2, vertical_sections = 3)
 
 # create dummy geom regression
 distribution_classes <- dummy_geom_distribution(cylinder_classes = TRUE)
 
 # add geoms
-flowers <- add_geoms(qsm, distribution_classes, flower, geom_type = "flower", cylinder_classes = classes)
+flowers <- add_geoms(
+  qsm, distribution_classes, flower, geom_type = "flower",
+  cylinder_classes = classes)
 
 # display values
 head(flowers)

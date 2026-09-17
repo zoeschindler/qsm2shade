@@ -196,7 +196,7 @@ prepare_qsm <- function(qsm, keep_all = FALSE) {
 #' @examples
 #' # load wood geoms
 #' file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
-#' geom_wood <- read.table(file_path, header = T)
+#' geom_wood <- read.table(file_path, header = TRUE)
 #'
 #' # get stem location
 #' location <- geom_tree_location(geom_wood)
@@ -204,6 +204,7 @@ prepare_qsm <- function(qsm, keep_all = FALSE) {
 #' # display values
 #' print(location)
 #' @export
+#' @importFrom stats quantile
 geom_tree_location <- function(geom, lwr_height = 0.3, upr_height = 0.6) {
 
   # get the id of every geom within the height section
@@ -241,7 +242,7 @@ geom_tree_location <- function(geom, lwr_height = 0.3, upr_height = 0.6) {
 #' @examples
 #' # load wood geoms
 #' file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
-#' geom_wood <- read.table(file_path, header = T)
+#' geom_wood <- read.table(file_path, header = TRUE)
 #'
 #' # get stem location
 #' location <- geom_tree_location(geom_wood)
@@ -295,14 +296,18 @@ geom_shift <- function(geom, offset = c(0,0,0)) {
 #' # display values
 #' print(location)
 #' @export
+#' @importFrom stats median
+#' @importFrom RCSF CSF
 las_tree_location <- function(las, lwr_height = 1.2, upr_height = 1.4) {
 
   # normalize point cloud
+  # because of the stupid csf function, lidR or its dependency RCSF must be imported
   las <- lidR::classify_ground(las, lidR::csf(class_threshold = 0.2, cloth_resolution = 0.2))
   las <- lidR::normalize_height(las, lidR::tin())
 
-  # clip circle from las file
-  las <- lidR::filter_poi(las, Z >= lwr_height & Z <= upr_height)
+  # get las slice
+  Z <- NA # because CRAN check fails otherwise, i hate my life
+  las2 <- lidR::filter_poi(las, Z >= lwr_height & Z <= upr_height)
 
   # abort if there is no ground
   if (lidR::is.empty(las)) stop("no points at specified height")
@@ -334,7 +339,7 @@ las_tree_location <- function(las, lwr_height = 1.2, upr_height = 1.4) {
 #' @return
 #' A \code{numeric} containing the \code{xyz}-vector of the ground normal.
 #'
-#' @seealso \code{\link{plot_ground}}, \code{\link{las_ground_normal}}
+#' @seealso \code{\link{plot_ground}}, \code{\link{las_plane_ground}}
 #'
 #' @examples
 #' # load las data
@@ -356,15 +361,20 @@ las_tree_location <- function(las, lwr_height = 1.2, upr_height = 1.4) {
 #'
 #' # plot qsm and ground
 #' qsm2r::plot(qsm, col = "salmon4", lit = TRUE)
-#' plot_ground(plane_origin = c(0,0,0), plane_normal = ground$normal, radius = 4, lit = FALSE, add = TRUE)
+#' plot_ground(
+#'   plane_origin = c(0,0,0), plane_normal = ground$normal, radius = 4,
+#'   lit = FALSE, add = TRUE)
 #' rgl::bg3d("white"); rgl::axes3d()
 #'
 #' # plot las
 #' lidR::plot(las, axis = TRUE)
-#' plot_ground(plane_origin = c(ground$origin[1]-min(las$X), ground$origin[2]-min(las$Y), ground$origin[3]),
-#'             plane_normal = ground$normal, radius = 4, add = TRUE)
-#'             rgl::bg3d("white"); rgl::axes3d()
+#' plot_ground(
+#'   plane_origin = c(ground$origin[1]-min(las$X), ground$origin[2]-min(las$Y), ground$origin[3]),
+#'   plane_normal = ground$normal, radius = 4, add = TRUE)
+#' rgl::bg3d("white")
+#' rgl::axes3d()
 #' @export
+#' @importFrom stats prcomp
 las_plane_ground <- function (las, location = c(0, 0), radius = 3, z_center = FALSE) {
 
   # get ground
@@ -391,7 +401,7 @@ las_plane_ground <- function (las, location = c(0, 0), radius = 3, z_center = FA
 
   if(is.na(z)) {
     message("height unknown")
-    z <- mean(values(dtm), na.rm = TRUE)
+    z <- mean(terra::values(dtm), na.rm = TRUE)
   }
   p_origin <- c(location[1:2], z)
 

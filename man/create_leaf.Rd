@@ -33,5 +33,5 @@ print(leaf)
 plot_geoms(leaf, add = FALSE, axes = TRUE)
 }
 \seealso{
-\code{\link{add_geoms}}, \code{\link{plot_geom}}
+\code{\link{add_geoms}}, \code{\link{plot_geoms}}
 }

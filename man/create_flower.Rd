@@ -28,5 +28,5 @@ print(flower)
 plot_geoms(flower, add = FALSE, axes = TRUE)
 }
 \seealso{
-\code{\link{add_geoms}}, \code{\link{plot_geom}}
+\code{\link{add_geoms}}, \code{\link{plot_geoms}}
 }

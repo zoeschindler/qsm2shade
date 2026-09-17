@@ -14,7 +14,7 @@
 #' @return
 #' \code{matrix}, contains coordinates of a single flower.
 #'
-#' @seealso \code{\link{add_geoms}}, \code{\link{plot_geom}}
+#' @seealso \code{\link{add_geoms}}, \code{\link{plot_geoms}}
 #'
 #' @examples
 #' # create polygons for single flower
@@ -31,15 +31,15 @@ create_flower <- function(radius_m = 0.01) {
   # geom base
   pentagon <- data.frame(
     "x" = c(0,
-            radius_m*cos(qsm2shade:::deg2rad(18)),
-            radius_m*cos(qsm2shade:::deg2rad(-54)),
-            -radius_m*cos(qsm2shade:::deg2rad(-54)),
-            -radius_m*cos(qsm2shade:::deg2rad(18))),
+            radius_m*cos(deg2rad(18)),
+            radius_m*cos(deg2rad(-54)),
+            -radius_m*cos(deg2rad(-54)),
+            -radius_m*cos(deg2rad(18))),
     "y" = c(radius_m,
-            radius_m*sin(qsm2shade:::deg2rad(18)),
-            radius_m*sin(qsm2shade:::deg2rad(-54)),
-            radius_m*sin(qsm2shade:::deg2rad(-54)),
-            radius_m*sin(qsm2shade:::deg2rad(18))),
+            radius_m*sin(deg2rad(18)),
+            radius_m*sin(deg2rad(-54)),
+            radius_m*sin(deg2rad(-54)),
+            radius_m*sin(deg2rad(18))),
     "z" = 0)
   pentagon <- rbind(pentagon, pentagon[1,])
 
@@ -100,7 +100,7 @@ create_flower <- function(radius_m = 0.01) {
 #' @return
 #' \code{matrix}, contains coordinates of a single leaf.
 #'
-#' @seealso \code{\link{add_geoms}}, \code{\link{plot_geom}}
+#' @seealso \code{\link{add_geoms}}, \code{\link{plot_geoms}}
 #'
 #' @examples
 #' # create polygon for single leaf
@@ -279,18 +279,22 @@ dummy_geom_distribution <- function(cylinder_classes = FALSE) {
 #' # with crown classification:
 #'
 #' # classify crown cylinders
-#' classes <- classify_crown(qsm, compass_directions = 8, outside_buffer_m = 2, vertical_sections = 3)
+#' classes <- classify_crown(
+#'   qsm, compass_directions = 8, outside_buffer_m = 2, vertical_sections = 3)
 #'
 #' # create dummy geom regression
 #' distribution_classes <- dummy_geom_distribution(cylinder_classes = TRUE)
 #'
 #' # add geoms
-#' flowers <- add_geoms(qsm, distribution_classes, flower, geom_type = "flower", cylinder_classes = classes)
+#' flowers <- add_geoms(
+#'   qsm, distribution_classes, flower, geom_type = "flower",
+#'   cylinder_classes = classes)
 #'
 #' # display values
 #' head(flowers)
 #' @export
 #' @importFrom data.table set
+#' @importFrom stats na.omit rbinom runif rnorm
 add_geoms <- function(qsm, geom_distribution, geom, stem_len = 0.01,
                       geom_type = c("leaf", "flower"), geom_angle = 45,
                       cylinder_classes = NULL, add_noise = 0) {
@@ -301,7 +305,7 @@ add_geoms <- function(qsm, geom_distribution, geom, stem_len = 0.01,
   }
 
   # prepare tree data
-  tree <- qsm2shade:::prepare_qsm(qsm, keep_all = FALSE)
+  tree <- prepare_qsm(qsm, keep_all = FALSE)
 
   # add diameter class to each cylinder
   class_width <- unique(round(geom_distribution$diam_end_m - geom_distribution$diam_start_m, 4))

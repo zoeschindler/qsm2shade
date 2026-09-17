@@ -32,21 +32,25 @@ only work for windows computers.
 \examples{
 # load wood geoms
 file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
-geom_wood <- as.matrix(read.table(file_path, header = T))
+geom_wood <- as.matrix(read.table(file_path, header = TRUE))
 
 # load leaf geoms
 file_path <- system.file("extdata", "pear_leaves.txt", package="qsm2shade")
-geom_other <- as.matrix(read.table(file_path, header = T))
+geom_other <- as.matrix(read.table(file_path, header = TRUE))
 
 # get sun position at different times
-timeframe <- seq(ISOdate(2020, 03, 22, 0, 0), ISOdate(2020, 03, 22, 23, 50), "10 mins")
+timeframe <- seq(
+  ISOdate(2020, 03, 22, 0, 0), ISOdate(2020, 03, 22, 23, 50), "10 mins")
 sun_position <- sun_movement(timeframe, latitude = 48.07, longitude = 7.60)
 
 # calculate shade
-result <- shade_tree_geoms(geom_wood, sun_position = sun_position, geom_other = geom_other, transparency = 0.7)
+result <- shade_tree_geoms(
+  geom_wood, sun_position = sun_position, geom_other = geom_other,
+  transparency = 0.7)
 
 # create dummy radiation data
-radiation <- dummy_radiation(ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
+radiation <- dummy_radiation(
+  ISOdate(2020, 01, 01, 0, 0), ISOdate(2020, 12, 31, 23, 50), "1 hour")
 
 # add radiation data to shade polygons
 result <- add_radiation(result, radiation)

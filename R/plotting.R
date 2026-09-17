@@ -12,6 +12,7 @@
 #' @param col \code{character}, color of the geoms.
 #' @param add \code{boolean}, add the plot to current active \code{rgl} plot.
 #' @param lit \code{boolean}, whether the polygons should be lit.
+#' @param axes \code{boolean}, whether the axes should be labelled.
 #'
 #' @return
 #' \code{rgl} plot of all geoms.
@@ -52,15 +53,15 @@
 #'
 #' # load wood polygons
 #' file_path <- system.file("extdata", "pear_wood.txt", package="qsm2shade")
-#' poly_wood <- read.table(file_path, header = T)
+#' poly_wood <- read.table(file_path, header = TRUE)
 #'
 #' # load leaf polygons
 #' file_path <- system.file("extdata", "pear_leaves.txt", package="qsm2shade")
-#' poly_leaves <- read.table(file_path, header = T)
+#' poly_leaves <- read.table(file_path, header = TRUE)
 #'
 #' # plot wood & leaves
-#' plot_geoms(poly_wood, col = "salmon4", add = F)
-#' plot_geoms(poly_leaves, col = "darkolivegreen3", add = T)
+#' plot_geoms(poly_wood, col = "salmon4", add = FALSE)
+#' plot_geoms(poly_leaves, col = "darkolivegreen3", add = TRUE)
 #' @export
 plot_geoms <- function(geoms, col = "#6D9DC5", add = TRUE, lit = TRUE, axes = FALSE) {
 
@@ -75,13 +76,13 @@ plot_geoms <- function(geoms, col = "#6D9DC5", add = TRUE, lit = TRUE, axes = FA
     poly_id <- NULL
     if (is.null(poly_id)) {
       try({poly_id <- rgl::polygon3d(geoms[geoms[,1] == id,2:4],
-                                     plot = FALSE, coords = c(1,2))}, silent = T)
+                                     plot = FALSE, coords = c(1,2))}, silent = TRUE)
       if (is.null(poly_id)) {
         try({poly_id <- rgl::polygon3d(geoms[geoms[,1] == id,2:4],
-                                       plot = FALSE, coords = c(2,3))}, silent = T)
+                                       plot = FALSE, coords = c(2,3))}, silent = TRUE)
         if (is.null(poly_id)) {
           try({poly_id <- rgl::polygon3d(geoms[geoms[,1] == id,2:4],
-                                        plot = FALSE, coords = c(1,3))}, silent = T)
+                                        plot = FALSE, coords = c(1,3))}, silent = TRUE)
         }
       }
     }
@@ -263,11 +264,12 @@ plot_shade_geoms <- function(geoms, sun_direction = c(0.25, 0.5, -0.75),
 #' @param z_offset \code{numeric}, offset along the z-axis in meters.
 #' @param col \code{character}, color of the shade.
 #' @param add \code{boolean}, add the plot to current active \code{rgl} plot.
+#' @param lit \code{boolean}, whether the polygons should be lit.
 #'
 #' @return
 #' \code{rgl} plot of the ground.
 #'
-#' @seealso \code{\link{plot_shade}}, \code{\link{plot_shade_geoms}}
+#' @seealso \code{\link{plot_shade_qsm}}, \code{\link{plot_shade_geoms}}
 #'
 #' @examples
 #' # load qsm

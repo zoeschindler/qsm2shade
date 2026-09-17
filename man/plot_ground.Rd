@@ -31,6 +31,8 @@ circle are calculated.}
 \item{col}{\code{character}, color of the shade.}
 
 \item{add}{\code{boolean}, add the plot to current active \code{rgl} plot.}
+
+\item{lit}{\code{boolean}, whether the polygons should be lit.}
 }
 \value{
 \code{rgl} plot of the ground.
@@ -65,5 +67,5 @@ plot_ground(plane_origin = ground_origin, plane_normal = ground_normal, radius =
 plot_shade_qsm(qsm, plane_origin = ground_origin, plane_normal = ground_normal)
 }
 \seealso{
-\code{\link{plot_shade}}, \code{\link{plot_shade_geoms}}
+\code{\link{plot_shade_qsm}}, \code{\link{plot_shade_geoms}}
 }
